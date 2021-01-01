@@ -1,8 +1,9 @@
 FROM golang:1.13.8 AS builderStep
 
+LABEL author="Muhammad Tariq"
+
 # Make Build dir
-RUN mkdir /go/src/exam105/backend
-WORKDIR /go/src/exam105/backend
+WORKDIR /src
 
 # Copy golang dependency manifests
 COPY go.mod .
@@ -18,7 +19,7 @@ COPY . .
 RUN go get && CGO_ENABLED=0 GOOS=linux go build -o exam105 .
 
 FROM scratch AS app
-COPY --from=builderStep /go/src/exam105/backend /opt/exam105
-WORKDIR /opt/exam105/
+WORKDIR /app
+COPY --from=builderStep /src .
 EXPOSE 9090
 ENTRYPOINT [ "./exam105" ]
