@@ -99,7 +99,7 @@ func main() {
 func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 
 	// Set client options
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017") // IMP-> Set Connection in ENV variable
+	clientOptions := options.Client().ApplyURI("mongodb://127.0.0.1:27017") // IMP-> Set Connection in ENV variable
 	clientOptions = clientOptions.SetMaxPoolSize(100)                       //100 is default driver setting
 
 	// Connect to MongoDB
@@ -114,6 +114,7 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 
 	if err != nil {
 		log.Fatal("Couldn't connect to the database", err)
+		fmt.Println(err)
 	} else {
 		fmt.Println(" New MongoDB connection created ! ")
 	}
