@@ -1,0 +1,5 @@
+[dev]
+172.26.27.7 ansible_user=ubuntu
+
+[dev:vars]
+ansible_python_interpreter=/usr/bin/python3
