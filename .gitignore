@@ -19,3 +19,6 @@ backend
 
 # Image 
 *.png 
+
+# SQL file
+*.sql
