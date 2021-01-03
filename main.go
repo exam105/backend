@@ -49,7 +49,7 @@ func main() {
 	   	val.Add("loc", "Asia/Jakarta")
 	   	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
 	   	dbConn, err := sql.Open(`mysql`, dsn) */
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
 	dbConn := initializeMongoDatabase(ctx)
@@ -100,7 +100,7 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 
 	// Set client options
 	//clientOptions := options.Client().ApplyURI("mongodb://127.0.0.1:27017") // IMP-> Set Connection in ENV variable
-	clientOptions := options.Client().ApplyURI("mongodb://127.0.0.1:27017/?compressors=disabled&gssapiServiceName=mongodb")
+	clientOptions := options.Client().ApplyURI("mongodb://mongodb:27017")
 	clientOptions = clientOptions.SetMaxPoolSize(100)                       //100 is default driver setting
 
 	// Connect to MongoDB
@@ -114,8 +114,8 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	err = client.Ping(ctx, nil)
 
 	if err != nil {
-		log.Fatal("Couldn't connect to the database", err)
-		fmt.Println(err)
+		log.Fatal("Couldn't connect to the database \n", err)
+		fmt.Errorf(err.Error())
 	} else {
 		fmt.Println(" New MongoDB connection created ! ")
 	}
