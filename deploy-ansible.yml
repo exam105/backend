@@ -17,6 +17,6 @@
         image: "muhammad1/exam105-be:{{DOCKER_TAG}}"
         state: started
         docker_network:
-          name: examm105        
+          name: exam105        
         published_ports:
           - 0.0.0.0:9090:9090
