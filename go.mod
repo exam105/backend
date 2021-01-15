@@ -3,6 +3,7 @@ module github.com/exam105-UPD/backend
 go 1.13
 
 require (
+	github.com/bxcodec/faker v2.0.1+incompatible // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-sql-driver/mysql v1.5.0

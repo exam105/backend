@@ -98,9 +98,12 @@ func main() {
 
 func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 
+	//Local MongoDB setup for testing ---- *** Delete it in production deployment ***
+	//clientOptions := options.Client().ApplyURI("mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
+
 	// Set client options
 	clientOptions := options.Client().ApplyURI("mongodb://mongodb:27017") // IMP-> Set Connection in ENV variable
-	clientOptions = clientOptions.SetMaxPoolSize(100)                       //100 is default driver setting
+	clientOptions = clientOptions.SetMaxPoolSize(100)                     //100 is default driver setting
 
 	// Connect to MongoDB
 	client, err := mongo.Connect(ctx, clientOptions)

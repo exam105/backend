@@ -6,6 +6,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/exam105-UPD/backend/domain"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/sirupsen/logrus"
 )
 
@@ -28,7 +29,8 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 
 	// Restricted group
 	grp := e.Group("dashboard/de")
-	//grp.Use(middleware.JWT([]byte("secret"))) // The string "secret" should be accessed from data entry
+	grp.Use(middleware.JWT([]byte("secret"))) // The string "secret" should be accessed from data entry.
+	//https://echo.labstack.com/cookbook/jwt
 
 	//e.GET("/articles", handler.FetchArticle)
 	grp.GET("/test", handler.Testing)
