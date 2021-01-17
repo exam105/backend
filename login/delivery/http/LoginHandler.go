@@ -22,8 +22,10 @@ func NewLoginHandler(e *echo.Echo, loginUseCase domain.LoginUsecase) {
 		LoginUC: loginUseCase,
 	}
 
-	e.POST("/login", handler.Authenticate)
-	//e.POST("/questions", handler.Save)
+	grp := e.Group("dashboard/de")
+
+	grp.POST("/login", handler.Authenticate)
+	e.POST("/add_operator", handler.Save)
 	//e.GET("/articles/:id", handler.GetByID)
 	//e.DELETE("/articles/:id", handler.Delete)
 }
@@ -59,4 +61,22 @@ func (loginHandler *LoginHandler) Authenticate(echoCtx echo.Context) (err error)
 	return echoCtx.JSON(http.StatusOK, map[string]string{
 		"token": t,
 	})
+}
+
+func (loginHandler *LoginHandler) Save(echoCtx echo.Context) (err error) {
+
+	username := echoCtx.FormValue("username")
+	useremail := echoCtx.FormValue("useremail")
+
+	// Throws unauthorized error
+	if username != "jon" || useremail != "abc@efg.xyz" {
+		return echo.ErrUnauthorized
+	}
+
+	requestCtx := echoCtx.Request().Context()
+	err = loginHandler.LoginUC.Save()
+	err = qsHandler.QuestionUC.Save(requestCtx, &allQuestion, username, useremail)
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
 }

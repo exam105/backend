@@ -29,8 +29,7 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 
 	// Restricted group
 	grp := e.Group("dashboard/de")
-	grp.Use(middleware.JWT([]byte("secret"))) // The string "secret" should be accessed from data entry.
-	//https://echo.labstack.com/cookbook/jwt
+	grp.Use(middleware.JWT([]byte("secret"))) // The string "secret" should be accessed from data entry. For details, https://echo.labstack.com/cookbook/jwt
 
 	//e.GET("/articles", handler.FetchArticle)
 	grp.GET("/test", handler.Testing)
