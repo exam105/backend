@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	_loginHandler "github.com/exam105-UPD/backend/login/delivery/http"
@@ -48,7 +49,8 @@ func main() {
 	   	val.Add("parseTime", "1")
 	   	val.Add("loc", "Asia/Jakarta")
 	   	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
-	   	dbConn, err := sql.Open(`mysql`, dsn) */
+		dbConn, err := sql.Open(`mysql`, dsn) */
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -101,9 +103,15 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	//Local MongoDB setup for testing ---- *** Delete it in production deployment ***
 	//clientOptions := options.Client().ApplyURI("mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
 
+	//Connecting to Dev Server DB for testing
+	mongoURL := os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@${ENV_MONGO_DEV_IP}:27017/?authSource=${ENV_MONGO_AUTH_DB}&compressors=zlib&readPreference=primary&gssapiServiceName=mongodb&appname=MongoDB%20Compass&ssl=false")
+	log.Println("Env: " + os.Getenv("ENV_MONGO_AUTH_DB"))
+	clientOptions := options.Client().ApplyURI(mongoURL)
+
 	// Set client options
-	clientOptions := options.Client().ApplyURI("mongodb://mongodb:27017") // IMP-> Set Connection in ENV variable
-	clientOptions = clientOptions.SetMaxPoolSize(100)                     //100 is default driver setting
+	//clientOptions := options.Client().ApplyURI("mongodb://mongodb:27017") // IMP-> Set Connection in ENV variable
+
+	clientOptions = clientOptions.SetMaxPoolSize(100) //100 is default driver setting
 
 	// Connect to MongoDB
 	client, err := mongo.Connect(ctx, clientOptions)

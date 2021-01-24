@@ -61,8 +61,5 @@ func (db *questionRepo) SaveAllQuestions(ctx context.Context, questions []interf
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	//fmt.Println("All questions document: ", insertResult)
-
 	return
 }
