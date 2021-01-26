@@ -110,6 +110,7 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 
 	// Set client options
 	mongoURL := os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@mongodb:27017/?authSource=${ENV_MONGO_AUTH_DB}")
+	log.Println("Env User: " + os.Getenv("ENV_MONGO_USER"))
 	clientOptions := options.Client().ApplyURI(mongoURL) // IMP-> Set Connection in ENV variable
 	log.Println("Connection String: " + clientOptions.GetURI())
 
