@@ -17,6 +17,8 @@ type LoginUsecase interface {
 	Authenticate(ctx context.Context)
 	Save(ctx context.Context, dataEntryOperator *DataEntryOperatorModel) error
 	GetAllOperators(ctx context.Context) ([]DataEntryOperatorModel, error)
+	Update(ctx context.Context, dataEntryOperator *DataEntryOperatorModel, objectId primitive.ObjectID) (int64, error)
+	Delete(ctx context.Context, objectId primitive.ObjectID) (int64, error)
 }
 
 // ArticleRepository represent the article's repository contract
@@ -24,4 +26,6 @@ type LoginRepository interface {
 	Authenticate(ctx context.Context, username string, useremail string)
 	Save(ctx context.Context, dataEntryOperator *DataEntryOperatorModel)
 	GetAllOperators(ctx context.Context) ([]DataEntryOperatorModel, error)
+	Update(ctx context.Context, dataEntryOperator *DataEntryOperatorModel, objectId primitive.ObjectID) (int64, error)
+	Delete(ctx context.Context, objectId primitive.ObjectID) (int64, error)
 }

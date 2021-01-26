@@ -9,6 +9,7 @@ import (
 	"github.com/exam105-UPD/backend/domain"
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // ResponseError represent the reseponse error struct
@@ -33,7 +34,8 @@ func NewLoginHandler(e *echo.Echo, loginUseCase domain.LoginUsecase) {
 	grp.POST("/login", handler.Authenticate)
 	grp.POST("/operator", handler.Save)
 	grp.GET("/operators", handler.GetAllOperators)
-	//e.DELETE("/articles/:id", handler.Delete)
+	grp.POST("/operator/:id", handler.Update)
+	grp.DELETE("/operator/:id", handler.Delete)
 }
 
 func (loginHandler *LoginHandler) Authenticate(echoCtx echo.Context) (err error) {
@@ -93,6 +95,42 @@ func (loginHandler *LoginHandler) GetAllOperators(echoCtx echo.Context) (err err
 	}
 
 	return echoCtx.JSON(http.StatusOK, operatorList)
+}
+
+func (loginHandler *LoginHandler) Update(echoCtx echo.Context) (err error) {
+
+	docID := echoCtx.Param("id")
+	objID, err := primitive.ObjectIDFromHex(docID)
+
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR", err)
+	} else {
+		fmt.Println("ObjectIDFromHex:", objID)
+	}
+
+	var deoModel domain.DataEntryOperatorModel
+	err = echoCtx.Bind(&deoModel)
+
+	requestCtx := echoCtx.Request().Context()
+	updated, err := loginHandler.LoginUC.Update(requestCtx, &deoModel, objID)
+	return echoCtx.JSON(http.StatusOK, updated)
+}
+
+func (loginHandler *LoginHandler) Delete(echoCtx echo.Context) error {
+
+	docID := echoCtx.Param("id")
+	objID, err := primitive.ObjectIDFromHex(docID)
+
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR", err)
+	} else {
+		fmt.Println("ObjectIDFromHex:", objID)
+	}
+
+	requestCtx := echoCtx.Request().Context()
+	delete, err := loginHandler.LoginUC.Delete(requestCtx, objID)
+	return echoCtx.JSON(http.StatusOK, delete)
+
 }
 
 func getStatusCode(err error) int {

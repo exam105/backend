@@ -43,3 +43,21 @@ func (loginUC *loginUsecase) GetAllOperators(ctx context.Context) ([]domain.Data
 
 	return loginUC.loginRepo.GetAllOperators(ctx)
 }
+
+func (loginUC *loginUsecase) Update(ctx context.Context, dataEntryOperator *domain.DataEntryOperatorModel, objID primitive.ObjectID) (int64, error) {
+
+	ctx, cancel := context.WithTimeout(ctx, loginUC.contextTimeout)
+	defer cancel()
+
+	return loginUC.loginRepo.Update(ctx, dataEntryOperator, objID)
+
+}
+
+func (loginUC *loginUsecase) Delete(ctx context.Context, objID primitive.ObjectID) (int64, error) {
+
+	ctx, cancel := context.WithTimeout(ctx, loginUC.contextTimeout)
+	defer cancel()
+
+	return loginUC.loginRepo.Delete(ctx, objID)
+
+}
