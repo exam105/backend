@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: muhammad1/exam105-be:${DOCKER_TAG}"
+    image: muhammad1/exam105-be:${BUILD_NUMBER}"
     ports:
       - '9090:9090'
     environment: 
