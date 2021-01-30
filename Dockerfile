@@ -2,6 +2,9 @@ FROM golang:1.13.8 AS builderStep
 
 LABEL author="Muhammad Tariq"
 
+ARG Mongo_User
+ENV ENV_MONGO_USER=$Mongo_User
+
 ENV APP_HOME /go/src/github.com/exam105-UPD/backend
 
 # Make Build dir
