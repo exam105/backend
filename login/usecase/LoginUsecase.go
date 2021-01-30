@@ -30,7 +30,7 @@ func (loginUC *loginUsecase) Save(ctx context.Context, DEO_Model *domain.DataEnt
 	defer cancel()
 
 	//userLoginModel := new(domain.UserLoginModel)
-	DEO_Model.Id = primitive.NewObjectID()
+	DEO_Model.ID = primitive.NewObjectID()
 	fmt.Println(DEO_Model)
 	loginUC.loginRepo.Save(ctx, DEO_Model)
 	return

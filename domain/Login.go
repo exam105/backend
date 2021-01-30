@@ -7,7 +7,7 @@ import (
 )
 
 type DataEntryOperatorModel struct {
-	Id       primitive.ObjectID `json:"id,omitempty" bson:"_id"`
+	ID       primitive.ObjectID `json:"id,omitempty" bson:"_id"`
 	Username string             `json:"username,omitempty" bson:"username"`
 	Email    string             `json:"email,omitempty" bson:"email"`
 }
