@@ -2,8 +2,11 @@ FROM golang:1.13.8 AS builderStep
 
 LABEL author="Muhammad Tariq"
 
-ARG Mongo_User
+ARG Mongo_User=testuser
 ENV ENV_MONGO_USER=$Mongo_User
+
+RUN echo "Environment Variable:=> $ENV_MONGO_USER"
+RUN echo "Mongo User ARG Variable:=> $Mongo_User"
 
 ENV APP_HOME /go/src/github.com/exam105-UPD/backend
 
