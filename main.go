@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	_loginHandler "github.com/exam105-UPD/backend/login/delivery/http"
