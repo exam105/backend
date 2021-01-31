@@ -18,6 +18,8 @@
         state: started      
         published_ports:
           - 0.0.0.0:9090:9090
+        env:
+          ENV_MONGO_USER="{{user}}"
     - name: Add a container to a network, leaving existing containers connected
       docker_network:
         name: exam105
