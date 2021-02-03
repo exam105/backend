@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+	"go.mongodb.org/mongo-driver/bson"
 	"context"
 	"fmt"
 	"log"
@@ -62,4 +64,32 @@ func (db *questionRepo) SaveAllQuestions(ctx context.Context, questions []interf
 		log.Fatal(err)
 	}
 	return
+}
+
+func (db *questionRepo) GetMetadataById(ctx context.Context, username string, useremail string) ([]domain.MetadataBson, error)	{
+
+	database := db.Conn.Database("exam105")
+	metadataCollection := database.Collection("metadata")
+
+	cursor, err := metadataCollection.Find(ctx, 
+		bson.D{
+			{"username", username},
+			{"useremail", useremail},
+	})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer cursor.Close(ctx)
+
+	var metadata []domain.MetadataBson
+	if err = cursor.All(ctx, &metadata); err != nil {
+		log.Fatal(err)
+	}
+
+	if len(metadata) == 0 {
+		return nil, errors.New("Metadata is empty ")
+	}
+
+	return metadata, nil	
 }

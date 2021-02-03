@@ -36,6 +36,7 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 	grp.POST("/questions", handler.Save)
 	//e.GET("/articles/:id", handler.GetByID)
 	//e.DELETE("/articles/:id", handler.Delete)
+	grp.GET("/metadata/", handler.GetMetadataByUsernameAndEmail)
 }
 
 func (qsHandler *QuestionHandler) Testing(echoCtx echo.Context) (err error) {
@@ -64,6 +65,21 @@ func (qsHandler *QuestionHandler) Save(echoCtx echo.Context) (err error) {
 	}
 
 	return echoCtx.JSON(http.StatusCreated, allQuestion)
+}
+
+func (qsHandler *QuestionHandler) GetMetadataByUsernameAndEmail(echoCtx echo.Context) (err error) {
+
+	username, useremail := restricted(echoCtx)
+	requestCtx := echoCtx.Request().Context()
+
+	metadataInfo, err := qsHandler.QuestionUC.GetMetadataById(requestCtx, username, useremail)
+	
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+
+	return echoCtx.JSON(http.StatusOK, metadataInfo)
+
 }
 
 func restricted(c echo.Context) (string, string) {

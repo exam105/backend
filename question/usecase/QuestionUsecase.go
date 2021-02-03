@@ -105,3 +105,12 @@ func (qsUC *questionUsecase) Save(c context.Context, allMcqs *domain.MCQModel, u
 	qsUC.questionRepo.SaveAllQuestions(ctx, questionSet)
 	return
 }
+
+func (qsUC *questionUsecase) GetMetadataById(ctx context.Context, username string, useremail string) (metadata []domain.MetadataBson, err error)	{
+
+	ctx, cancel := context.WithTimeout(ctx, qsUC.contextTimeout)
+	defer cancel()
+
+	return qsUC.questionRepo.GetMetadataById(ctx, username, useremail)	
+}
+

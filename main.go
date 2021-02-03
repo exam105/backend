@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"time"
-	"os"
 
 	_loginHandler "github.com/exam105-UPD/backend/login/delivery/http"
 	_loginRepo "github.com/exam105-UPD/backend/login/repository"
@@ -109,10 +108,10 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	//clientOptions := options.Client().ApplyURI(mongoURL)
 
 	// Set client options
-	mongoURL := os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@mongodb:27017/?authSource=${ENV_MONGO_AUTH_DB}")
-	log.Println("Env User: " + os.Getenv("ENV_MONGO_USER"))
-	//deleteME_MongoURL := "mongodb://adminuser:YetalaNahKh00LlaygA@mongodb:27017/?authSource=admin" // WORKED ON SERVER
-	clientOptions := options.Client().ApplyURI(mongoURL) // IMP-> Set Connection in ENV variable
+	//mongoURL := os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@mongodb:27017/?authSource=${ENV_MONGO_AUTH_DB}")
+	//log.Println("Env User: " + os.Getenv("ENV_MONGO_USER"))
+	deleteME_MongoURL := "mongodb://adminuser:YetalaNahKh00LlaygA@18.140.51.127:27017/?authSource=admin" // WORKED ON SERVER
+	clientOptions := options.Client().ApplyURI(deleteME_MongoURL) 
 	log.Println("Connection String: " + clientOptions.GetURI())
 
 	clientOptions = clientOptions.SetMaxPoolSize(100) //100 is default driver setting

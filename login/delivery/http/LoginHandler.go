@@ -55,7 +55,7 @@ func (loginHandler *LoginHandler) Authenticate(echoCtx echo.Context) (err error)
 
 	// Set claims
 	claims := token.Claims.(jwt.MapClaims)
-	claims["name"] = "Jon Snow"
+	claims["name"] = username
 	claims["email"] = useremail
 	claims["admin"] = true
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
@@ -66,9 +66,11 @@ func (loginHandler *LoginHandler) Authenticate(echoCtx echo.Context) (err error)
 		return err
 	}
 
+	//QuestionHandler. 
 	return echoCtx.JSON(http.StatusOK, map[string]string{
 		"token": t,
 	})
+	
 }
 
 func (loginHandler *LoginHandler) Save(echoCtx echo.Context) (err error) {

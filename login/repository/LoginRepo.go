@@ -25,6 +25,7 @@ func NewLoginRepository(Conn *mongo.Client) domain.LoginRepository {
 func (lgRepo *loginRepo) Authenticate(ctx context.Context, username string, useremail string) {
 
 }
+
 func (db *loginRepo) Save(ctx context.Context, DEO_Model *domain.DataEntryOperatorModel) {
 
 	database := db.Conn.Database("exam105")

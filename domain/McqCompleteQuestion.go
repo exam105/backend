@@ -1,6 +1,8 @@
 package domain
 
-import "context"
+import (
+	"context"
+)
 
 type MCQModel []struct {
 	Subject   string `json:"subject,omitempty" bson:"subject,omitempty"`
@@ -30,10 +32,13 @@ type topic []struct {
 // Question Use Case / Service layer
 type QuestionUsecase interface {
 	Save(requestCtx context.Context, questions *MCQModel, username string, useremail string) error
+	GetMetadataById(requestCtx context.Context, username string, useremail string) ([]MetadataBson, error)	
 }
 
 // Question Repository represent the question repository contract
 type QuestionRepository interface {
 	SaveAllQuestions(ctx context.Context, mcq []interface{}) //mcq []Question)
 	SaveQuestionMetadata(ctx context.Context, mcqMetaData *MetadataBson)
+	GetMetadataById(requestCtx context.Context, username string, useremail string) ([]MetadataBson, error)	
+
 }
