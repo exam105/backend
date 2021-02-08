@@ -22,8 +22,8 @@ func NewQuestionUsecase(qsRepo domain.QuestionRepository, timeout time.Duration)
 	}
 }
 
-func (qsUC *questionUsecase) Save(c context.Context, allMcqs *domain.MCQModel, username string, useremail string) (err error) {
-	ctx, cancel := context.WithTimeout(c, qsUC.contextTimeout)
+func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain.MCQModel, username string, useremail string) (error) {
+	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
 	defer cancel()
 
 	metadataBson := new(domain.MetadataBson)
@@ -103,14 +103,40 @@ func (qsUC *questionUsecase) Save(c context.Context, allMcqs *domain.MCQModel, u
 
 	qsUC.questionRepo.SaveQuestionMetadata(ctx, metadataBson)
 	qsUC.questionRepo.SaveAllQuestions(ctx, questionSet)
-	return
+	return nil
 }
 
-func (qsUC *questionUsecase) GetMetadataById(ctx context.Context, username string, useremail string) (metadata []domain.MetadataBson, err error)	{
+func (qsUC *questionUsecase) GetMetadataById(requestCtx context.Context, username string, useremail string) ([]domain.MetadataBson, error) {
 
-	ctx, cancel := context.WithTimeout(ctx, qsUC.contextTimeout)
+	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
 	defer cancel()
 
-	return qsUC.questionRepo.GetMetadataById(ctx, username, useremail)	
+	return qsUC.questionRepo.GetMetadataById(ctx, username, useremail)
 }
 
+func (qsUC *questionUsecase) UpdateMetadataById(requestCtx context.Context, receivedMetadata domain.MetadataBson, docID string) (int64, error) {
+
+	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
+	defer cancel()
+
+	return qsUC.questionRepo.UpdateMetadataById(ctx, receivedMetadata, docID)
+}
+
+func (qsUC *questionUsecase) DeleteMetadataById(requestCtx context.Context, docID string) (int64, error) {
+
+	// Delete Metadata should be able to delete all the question related to the paper. 
+	// This function is ONLY deleting the Metadata but the question remains in the database which is not the expected behaviour.
+
+	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
+	defer cancel()
+
+	return qsUC.questionRepo.DeleteMetadataById(ctx, docID)
+}
+
+func (qsUC *questionUsecase) GetMCQsByMetadataID(requestCtx context.Context, metadataID string) ([]domain.DisplayQuestion, error) {
+
+	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
+	defer cancel()
+
+	return qsUC.questionRepo.GetMCQsByMetadataID(ctx, metadataID)	
+}

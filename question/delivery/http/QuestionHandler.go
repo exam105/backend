@@ -31,12 +31,13 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 	grp := e.Group("dashboard/de")
 	grp.Use(middleware.JWT([]byte("secret"))) // The string "secret" should be accessed from data entry. For details, https://echo.labstack.com/cookbook/jwt
 
-	//e.GET("/articles", handler.FetchArticle)
 	grp.GET("/test", handler.Testing)
-	grp.POST("/questions", handler.Save)
-	//e.GET("/articles/:id", handler.GetByID)
-	//e.DELETE("/articles/:id", handler.Delete)
-	grp.GET("/metadata/", handler.GetMetadataByUsernameAndEmail)
+	grp.POST("/questions", handler.SaveMCQ)
+	grp.GET("/metadata", handler.GetMetadataByUser)
+	grp.POST("/metadata/:id", handler.UpdateMetadataByUser)
+	grp.DELETE("/metadata/:id", handler.DeleteMetadataByUser)
+
+	grp.GET("/questions/:id", handler.GetListOfMCQsByMetadataID)
 }
 
 func (qsHandler *QuestionHandler) Testing(echoCtx echo.Context) (err error) {
@@ -44,7 +45,7 @@ func (qsHandler *QuestionHandler) Testing(echoCtx echo.Context) (err error) {
 	return echoCtx.JSON(http.StatusOK, "Get method called. Testing successful.")
 }
 
-func (qsHandler *QuestionHandler) Save(echoCtx echo.Context) (err error) {
+func (qsHandler *QuestionHandler) SaveMCQ(echoCtx echo.Context) (err error) {
 
 	username, useremail := restricted(echoCtx)
 	var allQuestion domain.MCQModel
@@ -53,13 +54,8 @@ func (qsHandler *QuestionHandler) Save(echoCtx echo.Context) (err error) {
 		return echoCtx.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
-	// var ok bool
-	// if ok, err = isRequestValid(&article); !ok {
-	// 	return c.JSON(http.StatusBadRequest, err.Error())
-	// }
-
 	requestCtx := echoCtx.Request().Context()
-	err = qsHandler.QuestionUC.Save(requestCtx, &allQuestion, username, useremail)
+	err = qsHandler.QuestionUC.SaveMCQ(requestCtx, &allQuestion, username, useremail)
 	if err != nil {
 		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
@@ -67,7 +63,7 @@ func (qsHandler *QuestionHandler) Save(echoCtx echo.Context) (err error) {
 	return echoCtx.JSON(http.StatusCreated, allQuestion)
 }
 
-func (qsHandler *QuestionHandler) GetMetadataByUsernameAndEmail(echoCtx echo.Context) (err error) {
+func (qsHandler *QuestionHandler) GetMetadataByUser(echoCtx echo.Context) (error) {
 
 	username, useremail := restricted(echoCtx)
 	requestCtx := echoCtx.Request().Context()
@@ -79,6 +75,62 @@ func (qsHandler *QuestionHandler) GetMetadataByUsernameAndEmail(echoCtx echo.Con
 	}
 
 	return echoCtx.JSON(http.StatusOK, metadataInfo)
+
+}
+
+func (qsHandler *QuestionHandler) UpdateMetadataByUser(echoCtx echo.Context) (error) {
+
+	_, _ = restricted(echoCtx)
+
+	docID := echoCtx.Param("id")
+
+	var receivedMetadata domain.MetadataBson
+	err := echoCtx.Bind(&receivedMetadata)
+
+	requestCtx := echoCtx.Request().Context()
+
+	metadataInfo, err := qsHandler.QuestionUC.UpdateMetadataById(requestCtx, receivedMetadata, docID)
+	
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+
+	return echoCtx.JSON(http.StatusOK, metadataInfo)
+
+}
+
+func (qsHandler *QuestionHandler) DeleteMetadataByUser(echoCtx echo.Context) (error) {
+
+	// Delete Metadata should be able to delete all the question related to the paper. 
+	// This function is ONLY deleting the Metadata but the question remains in the database which is not the expected behaviour.
+
+	_, _ = restricted(echoCtx)
+
+	docID := echoCtx.Param("id")
+	requestCtx := echoCtx.Request().Context()
+	metadataInfo, err := qsHandler.QuestionUC.DeleteMetadataById(requestCtx, docID)
+	
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+
+	return echoCtx.JSON(http.StatusOK, metadataInfo)
+}
+
+func (qsHandler *QuestionHandler) GetListOfMCQsByMetadataID(echoCtx echo.Context) (error){
+
+	_, _ = restricted(echoCtx)
+
+	metadataID := echoCtx.Param("id")	
+	requestCtx := echoCtx.Request().Context()
+
+	allQuestion, err := qsHandler.QuestionUC.GetMCQsByMetadataID(requestCtx, metadataID)
+	
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+
+	return echoCtx.JSON(http.StatusOK, allQuestion)
 
 }
 

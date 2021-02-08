@@ -1,9 +1,10 @@
 package repository
 
 import (
-	"errors"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/bson"
 	"context"
+	"errors"
 	"fmt"
 	"log"
 
@@ -34,7 +35,7 @@ func (db *questionRepo) SaveQuestionMetadata(ctx context.Context, qsMetaData *do
 	return
 }
 
-func (db *questionRepo) SaveAllQuestions(ctx context.Context, questions []interface{}) {
+func (db *questionRepo) SaveAllQuestions(ctx context.Context, questions []interface{}) (int64){
 
 	database := db.Conn.Database("exam105")
 	questionsCollection := database.Collection("questions")
@@ -63,19 +64,19 @@ func (db *questionRepo) SaveAllQuestions(ctx context.Context, questions []interf
 	if err != nil {
 		log.Fatal(err)
 	}
-	return
+	return res.InsertedCount
 }
 
-func (db *questionRepo) GetMetadataById(ctx context.Context, username string, useremail string) ([]domain.MetadataBson, error)	{
+func (db *questionRepo) GetMetadataById(ctx context.Context, username string, useremail string) ([]domain.MetadataBson, error) {
 
 	database := db.Conn.Database("exam105")
 	metadataCollection := database.Collection("metadata")
 
-	cursor, err := metadataCollection.Find(ctx, 
+	cursor, err := metadataCollection.Find(ctx,
 		bson.D{
 			{"username", username},
 			{"useremail", useremail},
-	})
+		})
 
 	if err != nil {
 		log.Fatal(err)
@@ -91,5 +92,123 @@ func (db *questionRepo) GetMetadataById(ctx context.Context, username string, us
 		return nil, errors.New("Metadata is empty ")
 	}
 
-	return metadata, nil	
+	return metadata, nil
+}
+
+func (db *questionRepo) UpdateMetadataById(ctx context.Context, receivedMetadata domain.MetadataBson, docID string) (int64, error) {
+
+	database := db.Conn.Database("exam105")
+	metadataCollection := database.Collection("metadata")
+
+	mongoID, err := primitive.ObjectIDFromHex(docID)
+
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR", err)
+	} else {
+		fmt.Println("ObjectIDFromHex:", mongoID)
+	}
+
+	result, err := metadataCollection.UpdateOne(
+		ctx,
+		bson.M{"_id": mongoID},
+		bson.D{
+			{"$set", bson.D{
+				{Key: "subject", Value: receivedMetadata.Subject},
+				{Key: "system", Value: receivedMetadata.System},
+				{Key: "board", Value: receivedMetadata.Board},
+				{Key: "series", Value: receivedMetadata.Series},
+				{Key: "paper", Value: receivedMetadata.Paper},
+				{Key: "year", Value: receivedMetadata.Year},
+				{Key: "month", Value: receivedMetadata.Month},
+			}},
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf(
+		"insert: %d, updated: %d, deleted: %d /n",
+		result.MatchedCount,
+		result.ModifiedCount,
+		result.UpsertedCount,
+	)
+	return result.ModifiedCount, nil
+}
+
+func (db *questionRepo) DeleteMetadataById(ctx context.Context, docID string) (int64, error) {
+
+	// Delete Metadata should be able to delete all the question related to the paper. 
+	// This function is ONLY deleting the Metadata but the question remains in the database which is not the expected behaviour.
+
+	database := db.Conn.Database("exam105")
+	metadataCollection := database.Collection("metadata")
+
+	mongoID, err := primitive.ObjectIDFromHex(docID)
+
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR", err)
+	} else {
+		fmt.Println("ObjectIDFromHex:", mongoID)
+	}
+
+	result, err := metadataCollection.DeleteOne(ctx, bson.M{"_id": mongoID})
+
+	if err != nil {
+	log.Fatal("DeleteOne() ERROR:", err)
+	} else {
+
+		if result.DeletedCount == 0 {
+			fmt.Println("DeleteOne() document not found:", result)
+		
+		} else {
+			fmt.Println("DeleteOne Result:", result)
+		}
+
+	}
+	return result.DeletedCount, nil
+}
+
+func (db *questionRepo) GetMCQsByMetadataID(ctx context.Context, docID string) ([]domain.DisplayQuestion, error) {
+
+	database := db.Conn.Database("exam105")
+	metadataCollection := database.Collection("metadata")
+	questionsCollection := database.Collection("questions")
+	metadataID, err := primitive.ObjectIDFromHex(docID)
+
+	//Metadata (Exam Paper)
+	var metadataSingleRecord domain.MetadataBson
+	err = metadataCollection.FindOne(ctx, 
+		bson.M{"_id": metadataID}).Decode(&metadataSingleRecord)
+	
+	if err != nil {
+		log.Fatal(err)
+	}
+	
+	fmt.Printf("Host   : %s\t\n", metadataSingleRecord.Subject)
+
+	//Selecting all the questions of thr paper
+	questionToDisplay := []domain.DisplayQuestion{}
+	for k, _ := range metadataSingleRecord.QuestionHexIds {
+		fmt.Printf("Question HEX ID: %s\t\n", metadataSingleRecord.QuestionHexIds[k])
+		
+		questionHexID := metadataSingleRecord.QuestionHexIds[k]
+		questionID, err := primitive.ObjectIDFromHex(questionHexID)
+
+		var question domain.DisplayQuestion
+		err = questionsCollection.FindOne(ctx, 
+			bson.M{"_id": questionID}).Decode(&question)
+				
+		if err != nil {
+			log.Fatal(err)
+		}
+		
+		//fmt.Printf("Single Question: %+v \n", question)
+		questionToDisplay = append(questionToDisplay, question)
+	}
+
+	fmt.Printf("All questions: %+v\n", questionToDisplay)
+	
+	return questionToDisplay, nil
+
 }

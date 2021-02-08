@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"context"
 )
 
@@ -29,16 +30,28 @@ type topic []struct {
 	ID    float64 `json:"id" bson:"id"`
 }
 
+// This struct will be used to display the list of questions to the operator
+type DisplayQuestion struct {
+	ID       		primitive.ObjectID 	`json:"id,omitempty" bson:"_id,,omitempty"`
+	Questions 		string `json:"questions,omitempty" bson:"questions,omitempty"`
+}
+
 // Question Use Case / Service layer
 type QuestionUsecase interface {
-	Save(requestCtx context.Context, questions *MCQModel, username string, useremail string) error
-	GetMetadataById(requestCtx context.Context, username string, useremail string) ([]MetadataBson, error)	
+	SaveMCQ(requestCtx context.Context, questions *MCQModel, username string, useremail string) (error)
+	GetMetadataById(requestCtx context.Context, username string, useremail string) ([]MetadataBson, error)
+	UpdateMetadataById(requestCtx context.Context, metadata MetadataBson, docID string) (int64, error)
+	DeleteMetadataById(requestCtx context.Context, docID string) (int64, error)
+	GetMCQsByMetadataID(requestCtx context.Context, docID string) ([]DisplayQuestion, error)
+
 }
 
 // Question Repository represent the question repository contract
 type QuestionRepository interface {
-	SaveAllQuestions(ctx context.Context, mcq []interface{}) //mcq []Question)
-	SaveQuestionMetadata(ctx context.Context, mcqMetaData *MetadataBson)
-	GetMetadataById(requestCtx context.Context, username string, useremail string) ([]MetadataBson, error)	
-
+	SaveAllQuestions(ctx context.Context, mcq []interface{}) (int64)
+	SaveQuestionMetadata(ctx context.Context, mcqMetaData *MetadataBson) 
+	GetMetadataById(requestCtx context.Context, username string, useremail string) ([]MetadataBson, error)
+	UpdateMetadataById(requestCtx context.Context, metadata MetadataBson, docID string) (int64, error)
+	DeleteMetadataById(requestCtx context.Context, docID string) (int64, error)
+	GetMCQsByMetadataID(requestCtx context.Context, docID string) ([]DisplayQuestion, error)	
 }
