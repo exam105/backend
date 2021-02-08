@@ -91,7 +91,7 @@ func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain
 			//adding hexID to metadata
 			questionHexIds = append(questionHexIds, _id.Hex())
 
-			fmt.Printf("Single Qs ->>> %v \n", singleQuestion)
+			fmt.Printf("Single Qs ->>> %v \t \n", singleQuestion)
 		}
 	}
 
@@ -139,4 +139,12 @@ func (qsUC *questionUsecase) GetMCQsByMetadataID(requestCtx context.Context, met
 	defer cancel()
 
 	return qsUC.questionRepo.GetMCQsByMetadataID(ctx, metadataID)	
+}
+
+func (qsUC *questionUsecase) GetQuestion(requestCtx context.Context, objectID string) (domain.Question, error) {
+
+	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
+	defer cancel()
+
+	return qsUC.questionRepo.GetQuestion(ctx, objectID)	
 }

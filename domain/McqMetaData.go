@@ -5,7 +5,7 @@ import (
 )
 
 type MetadataBson struct {
-	ID       		primitive.ObjectID 	`json:"id,omitempty" bson:"_id,,omitempty"`
+	ID       		primitive.ObjectID 	`json:"id,omitempty" bson:"_id,omitempty"`
 	Subject        	string   			`json:"subject,omitempty" bson:"subject,omitempty"`
 	System         	string   			`json:"system,omitempty" bson:"system,omitempty"`
 	Board          	string   			`json:"board,omitempty" bson:"board,omitempty"`

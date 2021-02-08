@@ -38,6 +38,8 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 	grp.DELETE("/metadata/:id", handler.DeleteMetadataByUser)
 
 	grp.GET("/questions/:id", handler.GetListOfMCQsByMetadataID)
+	grp.GET("/question/:id", handler.GetQuestionByID)
+
 }
 
 func (qsHandler *QuestionHandler) Testing(echoCtx echo.Context) (err error) {
@@ -131,6 +133,23 @@ func (qsHandler *QuestionHandler) GetListOfMCQsByMetadataID(echoCtx echo.Context
 	}
 
 	return echoCtx.JSON(http.StatusOK, allQuestion)
+
+}
+
+func (qsHandler *QuestionHandler) GetQuestionByID(echoCtx echo.Context) (error){
+
+	_, _ = restricted(echoCtx)
+
+	questionID := echoCtx.Param("id")	
+	requestCtx := echoCtx.Request().Context()
+
+	question, err := qsHandler.QuestionUC.GetQuestion(requestCtx, questionID)
+	
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+
+	return echoCtx.JSON(http.StatusOK, question)
 
 }
 

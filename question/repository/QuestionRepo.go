@@ -189,9 +189,10 @@ func (db *questionRepo) GetMCQsByMetadataID(ctx context.Context, docID string) (
 
 	//Selecting all the questions of thr paper
 	questionToDisplay := []domain.DisplayQuestion{}
+
 	for k, _ := range metadataSingleRecord.QuestionHexIds {
-		fmt.Printf("Question HEX ID: %s\t\n", metadataSingleRecord.QuestionHexIds[k])
-		
+	
+		fmt.Printf("Question HEX ID: %s\t\n", metadataSingleRecord.QuestionHexIds[k])	
 		questionHexID := metadataSingleRecord.QuestionHexIds[k]
 		questionID, err := primitive.ObjectIDFromHex(questionHexID)
 
@@ -203,7 +204,6 @@ func (db *questionRepo) GetMCQsByMetadataID(ctx context.Context, docID string) (
 			log.Fatal(err)
 		}
 		
-		//fmt.Printf("Single Question: %+v \n", question)
 		questionToDisplay = append(questionToDisplay, question)
 	}
 
@@ -211,4 +211,22 @@ func (db *questionRepo) GetMCQsByMetadataID(ctx context.Context, docID string) (
 	
 	return questionToDisplay, nil
 
+}
+
+func (db *questionRepo) GetQuestion(ctx context.Context, questionID string) (domain.Question, error) {
+
+	database := db.Conn.Database("exam105")
+	questionsCollection := database.Collection("questions")
+	question, err := primitive.ObjectIDFromHex(questionID)
+
+	var singleQuestion domain.Question
+	err = questionsCollection.FindOne(ctx, 
+		bson.M{"_id": question}).Decode(&singleQuestion)
+	
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Questions: %+v \n", singleQuestion)
+	return singleQuestion, nil
 }

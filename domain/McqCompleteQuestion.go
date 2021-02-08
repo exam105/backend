@@ -32,8 +32,8 @@ type topic []struct {
 
 // This struct will be used to display the list of questions to the operator
 type DisplayQuestion struct {
-	ID       		primitive.ObjectID 	`json:"id,omitempty" bson:"_id,,omitempty"`
-	Questions 		string `json:"questions,omitempty" bson:"questions,omitempty"`
+	ID       		primitive.ObjectID 	`json:"id,omitempty" bson:"_id,omitempty"`
+	Questions 		string 				`json:"questions,omitempty" bson:"questions,omitempty"`
 }
 
 // Question Use Case / Service layer
@@ -43,6 +43,8 @@ type QuestionUsecase interface {
 	UpdateMetadataById(requestCtx context.Context, metadata MetadataBson, docID string) (int64, error)
 	DeleteMetadataById(requestCtx context.Context, docID string) (int64, error)
 	GetMCQsByMetadataID(requestCtx context.Context, docID string) ([]DisplayQuestion, error)
+	GetQuestion(requestCtx context.Context, questionID string) (Question, error)
+
 
 }
 
@@ -54,4 +56,5 @@ type QuestionRepository interface {
 	UpdateMetadataById(requestCtx context.Context, metadata MetadataBson, docID string) (int64, error)
 	DeleteMetadataById(requestCtx context.Context, docID string) (int64, error)
 	GetMCQsByMetadataID(requestCtx context.Context, docID string) ([]DisplayQuestion, error)	
+	GetQuestion(requestCtx context.Context, questionID string) (Question, error)
 }
