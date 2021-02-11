@@ -38,23 +38,31 @@ type DisplayQuestion struct {
 
 // Question Use Case / Service layer
 type QuestionUsecase interface {
-	SaveMCQ(requestCtx context.Context, questions *MCQModel, username string, useremail string) (error)
+
 	GetMetadataById(requestCtx context.Context, username string, useremail string) ([]MetadataBson, error)
 	UpdateMetadataById(requestCtx context.Context, metadata MetadataBson, docID string) (int64, error)
 	DeleteMetadataById(requestCtx context.Context, docID string) (int64, error)
 	GetMCQsByMetadataID(requestCtx context.Context, docID string) ([]DisplayQuestion, error)
+	
+	SaveMCQ(requestCtx context.Context, questions *MCQModel, username string, useremail string) (error)	
 	GetQuestion(requestCtx context.Context, questionID string) (Question, error)
-
-
+	UpdateQuestion(requestCtx context.Context, updatedQuestion Question, questionID string) (int64, error)
+	DeleteQuestion(requestCtx context.Context, metadataID string, questionID string) (int64, error)
+	
 }
 
 // Question Repository represent the question repository contract
 type QuestionRepository interface {
+
 	SaveAllQuestions(ctx context.Context, mcq []interface{}) (int64)
-	SaveQuestionMetadata(ctx context.Context, mcqMetaData *MetadataBson) 
+	SaveQuestionMetadata(ctx context.Context, mcqMetaData *MetadataBson)
 	GetMetadataById(requestCtx context.Context, username string, useremail string) ([]MetadataBson, error)
 	UpdateMetadataById(requestCtx context.Context, metadata MetadataBson, docID string) (int64, error)
 	DeleteMetadataById(requestCtx context.Context, docID string) (int64, error)
 	GetMCQsByMetadataID(requestCtx context.Context, docID string) ([]DisplayQuestion, error)	
+
 	GetQuestion(requestCtx context.Context, questionID string) (Question, error)
+	UpdateQuestion(requestCtx context.Context, updatedQuestion Question, questionID string) (int64, error)
+	DeleteQuestion(requestCtx context.Context, metadataID string, questionID string) (int64, error)
+
 }

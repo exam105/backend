@@ -39,7 +39,8 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 
 	grp.GET("/questions/:id", handler.GetListOfMCQsByMetadataID)
 	grp.GET("/question/:id", handler.GetQuestionByID)
-
+	grp.POST("/question/:id", handler.UpdateQuestionByID)
+	grp.DELETE("/question/:id/meta/:metaid", handler.DeleteQuestionByID)
 }
 
 func (qsHandler *QuestionHandler) Testing(echoCtx echo.Context) (err error) {
@@ -151,6 +152,44 @@ func (qsHandler *QuestionHandler) GetQuestionByID(echoCtx echo.Context) (error){
 
 	return echoCtx.JSON(http.StatusOK, question)
 
+}
+
+func (qsHandler *QuestionHandler) UpdateQuestionByID(echoCtx echo.Context) (error){
+	
+	_, _ = restricted(echoCtx)
+
+	docID := echoCtx.Param("id")
+
+	var updatedQuestion domain.Question
+	err := echoCtx.Bind(&updatedQuestion)
+
+	requestCtx := echoCtx.Request().Context()
+
+	questionResult, err := qsHandler.QuestionUC.UpdateQuestion(requestCtx, updatedQuestion, docID)
+	
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+
+	return echoCtx.JSON(http.StatusOK, questionResult)
+}
+
+func (qsHandler *QuestionHandler) DeleteQuestionByID(echoCtx echo.Context) (error) {
+
+	_, _ = restricted(echoCtx)
+
+	questionID := echoCtx.Param("id")
+	metaID := echoCtx.Param("metaid")
+
+	requestCtx := echoCtx.Request().Context()
+	questionResult, err := qsHandler.QuestionUC.DeleteQuestion(requestCtx, metaID, questionID)
+	
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+
+	return echoCtx.JSON(http.StatusOK, questionResult)
+	
 }
 
 func restricted(c echo.Context) (string, string) {

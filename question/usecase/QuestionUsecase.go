@@ -148,3 +148,19 @@ func (qsUC *questionUsecase) GetQuestion(requestCtx context.Context, objectID st
 
 	return qsUC.questionRepo.GetQuestion(ctx, objectID)	
 }
+
+func (qsUC *questionUsecase) UpdateQuestion(requestCtx context.Context, updatedQuestion domain.Question, questionID string) (int64, error) {
+
+	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
+	defer cancel()
+
+	return qsUC.questionRepo.UpdateQuestion(ctx, updatedQuestion, questionID)
+}
+
+func (qsUC *questionUsecase) DeleteQuestion(requestCtx context.Context, metaID string, questionID string) (int64, error) {
+
+	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
+	defer cancel()
+
+	return qsUC.questionRepo.DeleteQuestion(ctx, metaID, questionID)
+}

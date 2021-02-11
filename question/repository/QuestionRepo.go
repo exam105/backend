@@ -222,11 +222,181 @@ func (db *questionRepo) GetQuestion(ctx context.Context, questionID string) (dom
 	var singleQuestion domain.Question
 	err = questionsCollection.FindOne(ctx, 
 		bson.M{"_id": question}).Decode(&singleQuestion)
-	
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	fmt.Printf("Questions: %+v \n", singleQuestion)
 	return singleQuestion, nil
+}
+
+func (db *questionRepo) UpdateQuestion(ctx context.Context, updatedQuestion domain.Question, questionID string) (int64, error) {
+
+	database := db.Conn.Database("exam105")
+	questionCollection := database.Collection("questions")
+
+	questionId, err := primitive.ObjectIDFromHex(questionID)
+
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR", err)
+	} else {
+		fmt.Println("ObjectIDFromHex:", questionId)
+	}
+
+	// Use it's ID to replace
+	filter := bson.M{"_id": questionId}
+	result, err := questionCollection.ReplaceOne(ctx, filter, updatedQuestion)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf(
+		"insert: %d, updated: %d, deleted: %d /n",
+		result.MatchedCount,
+		result.ModifiedCount,
+		result.UpsertedCount,
+	)
+	return result.ModifiedCount, nil
+}
+
+func (db *questionRepo) DeleteQuestion(ctx context.Context, metaID string, questionID string) (int64, error) {
+
+	database := db.Conn.Database("exam105")
+	questionCollection := database.Collection("questions")
+	metadataCollection := database.Collection("metadata")
+
+	questionHexID, err := primitive.ObjectIDFromHex(questionID)
+	metaHexID, meta_err := primitive.ObjectIDFromHex(metaID)
+
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR", err)
+	} else if meta_err != nil {
+		fmt.Println("ObjectIDFromHex ERROR", meta_err)
+	}
+	
+	// Start Transaction
+	// var session mongo.Session
+	// if session, err = db.Conn.StartSession(); err != nil {
+    //     log.Fatal(err)
+    // }
+    // if err = session.StartTransaction(); err != nil {
+    //     log.Fatal(err)
+    // }
+
+
+
+	// 1. First we need to delete the QuestionID from the array in Metadata collection
+	var transactionStatus int64
+	var metadataSingleRecord domain.MetadataBson
+	err = metadataCollection.FindOne(ctx, bson.M{"_id": metaHexID}).Decode(&metadataSingleRecord)
+	
+	if err != nil {
+		log.Fatal(err)
+	}
+	
+	fmt.Printf("Full list   : %s\t \n", metadataSingleRecord.QuestionHexIds)
+	var questionHexs = make([]string,0)
+	questionHexs = append(questionHexs, metadataSingleRecord.QuestionHexIds...)
+
+	for k, value := range questionHexs{
+		if  value == questionID {
+
+			//Removing QuestionHexID from Metadata Collection
+			questionHexs = removeIndex(questionHexs, k)
+			break
+		} 
+	}
+	// 1.1 Updating Metadata collection after removing ID
+	filter := bson.M{"_id": bson.M{"$eq": metaHexID}}
+	update := bson.M{"$set": bson.M{"question_hex_ids": questionHexs}}
+	updated, updateErr := metadataCollection.UpdateOne(ctx, filter, update)
+	
+	if updateErr != nil {
+		log.Fatal("Delete Metadata ERROR: ", updateErr)
+	} else {
+
+		if updated.ModifiedCount != 1 {
+			fmt.Println("Delete failed. Expected 1 but got ", updated)
+		} else {
+			fmt.Println("Deleteed: ", updated)
+		}
+	}	
+	transactionStatus = updated.ModifiedCount
+	fmt.Printf("Question_HEX_IDs   : %s \t %d \n", questionHexs, len(questionHexs))
+
+	// 2. Delete the Question Document from Question Collection
+	deleted, deleteErr := questionCollection.DeleteOne(ctx, bson.M{"_id": questionHexID})
+
+	if deleteErr != nil {
+		log.Fatal("Delete Question ERROR:", deleteErr)
+	} else {
+
+		if deleted.DeletedCount == 0 {
+			fmt.Println("Delete document not found:", deleted)
+		} else {
+			fmt.Println("Delete Result:", deleted)
+		}
+	}
+	transactionStatus = transactionStatus + deleted.DeletedCount
+
+
+
+
+
+
+//**********************************Transaction Needs Replica-Set****************************************************************
+/* 	var transactionStatus int64
+	if err = mongo.WithSession(ctx, session, func(mongoSession mongo.SessionContext) error {
+
+		// 1.1 Updating Metadata collection after removing ID
+		filter := bson.M{"_id": bson.M{"$eq": metaHexID}}
+		update := bson.M{"$set": bson.M{"question_hex_ids": questionHexs}}
+		updated, updateErr := metadataCollection.UpdateOne(mongoSession, filter, update)
+		
+		if updateErr != nil {
+			log.Fatal("Delete Metadata ERROR: ", updateErr)
+			mongoSession.AbortTransaction(mongoSession)
+		} else {
+
+			if updated.ModifiedCount != 1 {
+				fmt.Println("Delete failed. Expected 1 but got ", updated)
+			} else {
+				fmt.Println("Deleteed: ", updated)
+			}
+		}	
+		transactionStatus = updated.ModifiedCount
+		fmt.Printf("Question_HEX_IDs   : %s \t %d \n", questionHexs, len(questionHexs))
+
+		// 2. Delete the Question Document from Question Collection
+		deleted, deleteErr := questionCollection.DeleteOne(mongoSession, bson.M{"_id": questionHexID})
+
+		if deleteErr != nil {
+			log.Fatal("Delete Question ERROR:", deleteErr)
+			mongoSession.AbortTransaction(mongoSession)
+		} else {
+
+			if deleted.DeletedCount == 0 {
+				fmt.Println("Delete document not found:", deleted)
+			} else {
+				fmt.Println("Delete Result:", deleted)
+			}
+		}
+		transactionStatus = transactionStatus + deleted.DeletedCount
+		if err = session.CommitTransaction(mongoSession); err != nil {
+            log.Fatal(err)
+        }
+        return nil
+    }); err != nil {
+        log.Fatal(err)
+    }
+    session.EndSession(ctx) // End transaction
+ */
+
+	return transactionStatus, nil
+}
+
+func removeIndex(s []string, index int) []string {
+	return append(s[:index], s[index+1:]...)
 }
