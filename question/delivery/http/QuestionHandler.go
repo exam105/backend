@@ -104,9 +104,6 @@ func (qsHandler *QuestionHandler) UpdateMetadataByUser(echoCtx echo.Context) (er
 
 func (qsHandler *QuestionHandler) DeleteMetadataByUser(echoCtx echo.Context) (error) {
 
-	// Delete Metadata should be able to delete all the question related to the paper. 
-	// This function is ONLY deleting the Metadata but the question remains in the database which is not the expected behaviour.
-
 	_, _ = restricted(echoCtx)
 
 	docID := echoCtx.Param("id")

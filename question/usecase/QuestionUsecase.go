@@ -124,9 +124,6 @@ func (qsUC *questionUsecase) UpdateMetadataById(requestCtx context.Context, rece
 
 func (qsUC *questionUsecase) DeleteMetadataById(requestCtx context.Context, docID string) (int64, error) {
 
-	// Delete Metadata should be able to delete all the question related to the paper. 
-	// This function is ONLY deleting the Metadata but the question remains in the database which is not the expected behaviour.
-
 	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
 	defer cancel()
 

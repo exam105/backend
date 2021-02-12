@@ -138,35 +138,68 @@ func (db *questionRepo) UpdateMetadataById(ctx context.Context, receivedMetadata
 
 func (db *questionRepo) DeleteMetadataById(ctx context.Context, docID string) (int64, error) {
 
-	// Delete Metadata should be able to delete all the question related to the paper. 
-	// This function is ONLY deleting the Metadata but the question remains in the database which is not the expected behaviour.
-
+	var questionHexIDCollection []primitive.ObjectID
 	database := db.Conn.Database("exam105")
 	metadataCollection := database.Collection("metadata")
+	questionCollection := database.Collection("questions")
 
-	mongoID, err := primitive.ObjectIDFromHex(docID)
+	metadataID, err := primitive.ObjectIDFromHex(docID)
 
 	if err != nil {
 		fmt.Println("ObjectIDFromHex ERROR", err)
 	} else {
-		fmt.Println("ObjectIDFromHex:", mongoID)
+		fmt.Println("ObjectIDFromHex:", metadataID)
 	}
 
-	result, err := metadataCollection.DeleteOne(ctx, bson.M{"_id": mongoID})
+	// 1. First all the Questions based on HexIDs - Metadata (Exam Paper)
+	var metadataSingleRecord domain.MetadataBson
+	err = metadataCollection.FindOne(ctx, 
+		bson.M{"_id": metadataID}).Decode(&metadataSingleRecord)
+	
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//Collecting all the questions IDs of the paper
+	for k, _ := range metadataSingleRecord.QuestionHexIds {
+	
+		fmt.Printf("Question HEX ID: %s\t\n", metadataSingleRecord.QuestionHexIds[k])
+		questionHexID := metadataSingleRecord.QuestionHexIds[k]
+		questionID, err := primitive.ObjectIDFromHex(questionHexID)
+		if err != nil {
+			fmt.Println("ObjectIDFromHex ERROR", err)
+		}
+
+		//Populating a slice of all the questionIDs
+		questionHexIDCollection = append(questionHexIDCollection, questionID)
+	}
+
+	filter := bson.D{
+		{"_id", bson.D{{"$in", questionHexIDCollection}}}, }
+		
+	deleteResult, err1 := questionCollection.DeleteMany(ctx, filter)
+	if err != nil {
+		fmt.Println("Question Deletion Error", err1)
+	}
+
+	fmt.Println("All question of Metadata Deleted: ", deleteResult)
+
+	// 2. Delete the Metadata from Metadata collection
+	result, err := metadataCollection.DeleteOne(ctx, bson.M{"_id": metadataID})
 
 	if err != nil {
-	log.Fatal("DeleteOne() ERROR:", err)
+	log.Fatal("Delete Metadata ERROR:", err)
 	} else {
 
 		if result.DeletedCount == 0 {
-			fmt.Println("DeleteOne() document not found:", result)
+			fmt.Println("Delete Metadata document not found:", result)
 		
 		} else {
-			fmt.Println("DeleteOne Result:", result)
+			fmt.Println("Metadata Deleted: ", result)
 		}
 
 	}
-	return result.DeletedCount, nil
+	return deleteResult.DeletedCount + result.DeletedCount, nil
 }
 
 func (db *questionRepo) GetMCQsByMetadataID(ctx context.Context, docID string) ([]domain.DisplayQuestion, error) {
@@ -340,10 +373,6 @@ func (db *questionRepo) DeleteQuestion(ctx context.Context, metaID string, quest
 		}
 	}
 	transactionStatus = transactionStatus + deleted.DeletedCount
-
-
-
-
 
 
 //**********************************Transaction Needs Replica-Set****************************************************************
