@@ -23,6 +23,7 @@ func NewQuestionUsecase(qsRepo domain.QuestionRepository, timeout time.Duration)
 }
 
 func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain.MCQModel, username string, useremail string) (error) {
+	
 	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
 	defer cancel()
 
@@ -68,7 +69,7 @@ func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain
 
 			}
 
-			for _, topic := range allQuestions.Topic {
+			for _, topic := range allQuestions.Topics {
 
 				//fmt.Printf("Key---> %d \n", key)
 				qsTopic := new(domain.QuestionTopic)
@@ -104,6 +105,57 @@ func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain
 	qsUC.questionRepo.SaveQuestionMetadata(ctx, metadataBson)
 	qsUC.questionRepo.SaveAllQuestions(ctx, questionSet)
 	return nil
+}
+
+func (qsUC *questionUsecase) AddSingleQuestion(requestCtx context.Context, singleMCQ *domain.Question, metadataID string) (int64) {
+	
+	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
+	defer cancel()
+
+	singleQuestion := new(domain.Question)
+	
+	_id := primitive.NewObjectID()
+	questionText := singleMCQ.Questions
+	marks := singleMCQ.Marks
+	optionsArray := make([]domain.QuestionOptions, 0)
+	topicsArray := make([]domain.QuestionTopic, 0)
+
+	// fmt.Printf("Question:-->  %s --- Marks:--> %s \n ", questionText, marks)
+	for _, option := range singleMCQ.Options {
+
+		//fmt.Printf("Key---> %d \n", key)
+		qsOption := new(domain.QuestionOptions)
+		qsOption.Option = option.Option
+		qsOption.Correct = option.Correct
+		optionsArray = append(optionsArray, *qsOption)
+
+		// fmt.Printf("Option: %s --- Correct: %t \n", qsOption.Option, qsOption.Correct)
+		// fmt.Printf("%v \n --------------------", optionsArray)
+
+	}
+
+	for _, topic := range singleMCQ.Topics {
+
+		//fmt.Printf("Key---> %d \n", key)
+		qsTopic := new(domain.QuestionTopic)
+		qsTopic.Topic = topic.Topic
+		topicsArray = append(topicsArray, *qsTopic)
+
+		// fmt.Printf("Topic: %s  \n", qsTopic.Topic)
+		// fmt.Printf("%v \n --------------------", topicsArray)
+
+	}
+
+	singleQuestion.ID = _id
+	singleQuestion.Questions = questionText
+	singleQuestion.Marks = marks
+	singleQuestion.Options = optionsArray
+	singleQuestion.Topics = topicsArray
+
+	fmt.Printf("Single Qs ->>> %v \t \n", singleQuestion)
+	return qsUC.questionRepo.AddSingleQuestion(ctx, singleQuestion, metadataID)
+	//return &singleQuestion, nil
+
 }
 
 func (qsUC *questionUsecase) GetMetadataById(requestCtx context.Context, username string, useremail string) ([]domain.MetadataBson, error) {

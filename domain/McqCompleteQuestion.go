@@ -16,7 +16,7 @@ type MCQModel []struct {
 	Questions string `json:"questions,omitempty" bson:"questions,omitempty"`
 	Marks     string `json:"marks,omitempty" bson:"marks,omitempty"`
 	Options   option `json:"options,omitempty" bson:"options,omitempty"`
-	Topic     topic  `json:"topic,omitempty" bson:"topic,omitempty"`
+	Topics    topic  `json:"topic,omitempty" bson:"topic,omitempty"`
 }
 
 type option []struct {
@@ -45,6 +45,7 @@ type QuestionUsecase interface {
 	GetMCQsByMetadataID(requestCtx context.Context, docID string) ([]DisplayQuestion, error)
 	
 	SaveMCQ(requestCtx context.Context, questions *MCQModel, username string, useremail string) (error)	
+	AddSingleQuestion(requestCtx context.Context, question *Question, metadataID string) (int64)	
 	GetQuestion(requestCtx context.Context, questionID string) (Question, error)
 	UpdateQuestion(requestCtx context.Context, updatedQuestion Question, questionID string) (int64, error)
 	DeleteQuestion(requestCtx context.Context, metadataID string, questionID string) (int64, error)
@@ -61,6 +62,7 @@ type QuestionRepository interface {
 	DeleteMetadataById(requestCtx context.Context, docID string) (int64, error)
 	GetMCQsByMetadataID(requestCtx context.Context, docID string) ([]DisplayQuestion, error)	
 
+	AddSingleQuestion(ctx context.Context, mcq *Question, metadataID string) (int64)
 	GetQuestion(requestCtx context.Context, questionID string) (Question, error)
 	UpdateQuestion(requestCtx context.Context, updatedQuestion Question, questionID string) (int64, error)
 	DeleteQuestion(requestCtx context.Context, metadataID string, questionID string) (int64, error)

@@ -40,6 +40,7 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 	grp.GET("/questions/:id", handler.GetListOfMCQsByMetadataID)
 	grp.GET("/question/:id", handler.GetQuestionByID)
 	grp.POST("/question/:id", handler.UpdateQuestionByID)
+	grp.PUT("/question/meta/:metaid", handler.AddQuestion)
 	grp.DELETE("/question/:id/meta/:metaid", handler.DeleteQuestionByID)
 }
 
@@ -187,6 +188,28 @@ func (qsHandler *QuestionHandler) DeleteQuestionByID(echoCtx echo.Context) (erro
 
 	return echoCtx.JSON(http.StatusOK, questionResult)
 	
+}
+
+func (qsHandler *QuestionHandler) AddQuestion(echoCtx echo.Context) (error) {
+
+	_, _ = restricted(echoCtx)
+	metaID := echoCtx.Param("metaid")
+
+	var singleQuestion domain.Question
+	err := echoCtx.Bind(&singleQuestion)
+
+	if err != nil {
+		return echoCtx.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	requestCtx := echoCtx.Request().Context()
+	result := qsHandler.QuestionUC.AddSingleQuestion(requestCtx, &singleQuestion, metaID)
+	// if err != nil {
+	// 	return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	// }
+
+	return echoCtx.JSON(http.StatusCreated, result)
+
 }
 
 func restricted(c echo.Context) (string, string) {
