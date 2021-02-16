@@ -126,7 +126,7 @@ func (qsHandler *QuestionHandler) GetListOfMCQsByMetadataID(echoCtx echo.Context
 	requestCtx := echoCtx.Request().Context()
 
 	allQuestion, err := qsHandler.QuestionUC.GetMCQsByMetadataID(requestCtx, metadataID)
-	
+
 	if err != nil {
 		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
@@ -203,10 +203,11 @@ func (qsHandler *QuestionHandler) AddQuestion(echoCtx echo.Context) (error) {
 	}
 
 	requestCtx := echoCtx.Request().Context()
-	result := qsHandler.QuestionUC.AddSingleQuestion(requestCtx, &singleQuestion, metaID)
-	// if err != nil {
-	// 	return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
-	// }
+	result, err  := qsHandler.QuestionUC.AddSingleQuestion(requestCtx, &singleQuestion, metaID)
+	
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
 
 	return echoCtx.JSON(http.StatusCreated, result)
 

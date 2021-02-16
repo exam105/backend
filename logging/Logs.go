@@ -14,7 +14,7 @@ var (
 func init() {
 	file, err := os.OpenFile("/var/logs/exam105/exam105.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
-		log.Fatal(err)
+		log.Println( "Problem with exam105.log ", err.Error())
 	}
 
 	infoLogger = log.New(file, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)

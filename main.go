@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/exam105-UPD/backend/logging"
 	"os"
 	"context"
 	"fmt"
@@ -55,7 +56,8 @@ func main() {
 	defer cancel()
 
 	dbConn := initializeMongoDatabase(ctx)
-
+	logging.InitializeMessages()
+	
 	defer func() {
 		err := dbConn.Disconnect(ctx)
 		if err != nil {
@@ -100,11 +102,9 @@ func main() {
 
 func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 
-	//Local MongoDB setup for testing ---- *** Delete it in production deployment ***
-	//clientOptions := options.Client().ApplyURI("mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
-
 	// Set client options
-	mongoURL := os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@mongodb:27017/?authSource=${ENV_MONGO_AUTH_DB}")
+	//mongoURL := os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@mongodb:27017/?authSource=${ENV_MONGO_AUTH_DB}") // DEV URL
+	mongoURL := os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@${ENV_MONGO_DEV_IP}:27017/?authSource=${ENV_MONGO_AUTH_DB}")
 	log.Println("Env User: " + os.Getenv("ENV_MONGO_USER"))
 	clientOptions := options.Client().ApplyURI(mongoURL)
 	clientOptions = clientOptions.SetMaxPoolSize(100) //100 is default driver setting
