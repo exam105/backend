@@ -69,7 +69,6 @@ func main() {
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: "method=${method}, uri=${uri}, status=${status}, remote_ip:${remote_ip}, host:${host} \n",
 	}))
-
 	// **** Article wiring ****
 
 	/* 	authorRepo := _authorRepo.NewMysqlAuthorRepository(dbConn)
@@ -104,7 +103,9 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	//clientOptions := options.Client().ApplyURI("mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
 
 	// Set client options
-	mongoURL := os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@mongodb:27017/?authSource=${ENV_MONGO_AUTH_DB}")
+
+	//mongoURL := os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@mongodb:27017/?authSource=${ENV_MONGO_AUTH_DB}") // DEV
+	mongoURL := os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@54.255.95.50:27017/?authSource=${ENV_MONGO_AUTH_DB}") // Local
 	log.Println("Env User: " + os.Getenv("ENV_MONGO_USER"))
 	clientOptions := options.Client().ApplyURI(mongoURL)
 	clientOptions = clientOptions.SetMaxPoolSize(100) //100 is default driver setting

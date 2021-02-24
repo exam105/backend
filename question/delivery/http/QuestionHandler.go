@@ -1,6 +1,7 @@
 package http
 
 import (
+	"os"
 	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
@@ -42,6 +43,8 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 	grp.POST("/question/:id", handler.UpdateQuestionByID)
 	grp.PUT("/question/meta/:metaid", handler.AddQuestion)
 	grp.DELETE("/question/:id/meta/:metaid", handler.DeleteQuestionByID)
+
+	grp.GET("/question/s3credentials",handler.GetS3Credentials)
 }
 
 func (qsHandler *QuestionHandler) Testing(echoCtx echo.Context) (err error) {
@@ -210,6 +213,26 @@ func (qsHandler *QuestionHandler) AddQuestion(echoCtx echo.Context) (error) {
 
 	return echoCtx.JSON(http.StatusCreated, result)
 
+}
+
+func (qsHandler *QuestionHandler) GetS3Credentials(echoCtx echo.Context) (error){
+
+	type S3Cred struct {
+		Username       	string 				`json:"username" bson:"username"`
+		Accesskey 		string 				`json:"accesskey" bson:"accesskey"`
+		Secretkey 		string 				`json:"secretkey" bson:"secretkey"`
+		Region			string				`json:"region" bson:"region"`
+	}
+	
+	s3cred := new(S3Cred)
+	s3cred.Username = os.Getenv("ENV_S3_USERNAME")
+	s3cred.Accesskey = os.Getenv("ENV_S3_ACCESS_KEY_ID")
+	s3cred.Secretkey = os.Getenv("ENV_S3_SECRET_ACCESS_KEY")
+	s3cred.Region = os.Getenv("ENV_S3_REGION")
+
+	//log.Info("S3 Region: " + os.Getenv("ENV_S3_REGION"))
+
+	return echoCtx.JSON(http.StatusOK, s3cred)
 }
 
 func restricted(c echo.Context) (string, string) {
