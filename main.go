@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/exam105-UPD/backend/logging"
 	"os"
 	"context"
 	"fmt"
@@ -55,7 +56,8 @@ func main() {
 	defer cancel()
 
 	dbConn := initializeMongoDatabase(ctx)
-
+	logging.InitializeMessages()
+	
 	defer func() {
 		err := dbConn.Disconnect(ctx)
 		if err != nil {
@@ -98,9 +100,6 @@ func main() {
 }
 
 func initializeMongoDatabase(ctx context.Context) *mongo.Client {
-
-	//Local MongoDB setup for testing ---- *** Delete it in production deployment ***
-	//clientOptions := options.Client().ApplyURI("mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
 
 	// Set client options
 

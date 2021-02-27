@@ -121,7 +121,7 @@ func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain
 	return nil
 }
 
-func (qsUC *questionUsecase) AddSingleQuestion(requestCtx context.Context, singleMCQ *domain.Question, metadataID string) (int64) {
+func (qsUC *questionUsecase) AddSingleQuestion(requestCtx context.Context, singleMCQ *domain.Question, metadataID string) (int64, error) {
 	
 	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
 	defer cancel()

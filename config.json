@@ -7,11 +7,24 @@
     "timeout":2
   },
   "database": {
-      "host": "mysql",
-      "port": "3306",
-      "user": "user",
-      "pass": "password",
-      "name": "article"
+    "host": "mysql",
+    "port": "3306",
+    "user": "user",
+    "pass": "password",
+    "name": "article"
+  },
+  "errMessages":{
+    "wrongDocumentID": "Given ID is incorrect or not available",
+    "deleteUnsuccessful": "Document couldn't be deleted.",
+    "deleteSuccessful": "Document deleted.",
+    "updateUnsuccessful": "Document couldn't be updated.",
+    "updateSuccessful": "Document updated.",    
+    "insertUnsuccessful": "Document couldn't be inserted.",
+    "insertSuccessful": "Document inserted.",       
+    "documentNotFound": "Document not found. Please check the ID.",
+    "conversionUnsuccessful": "Document not found. Please check the ID.",
+    "emptyMetadata": "Metadata collection is empty",
+    "mappingFailure": "Couldn't map data to object",
+    "bulkwriteFailed": "BulkWrite operation failed"     
   }
-
 }
