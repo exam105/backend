@@ -7,7 +7,8 @@ type Question struct {
 	Questions string             `json:"questions,omitempty" bson:"questions"`
 	Marks     string             `json:"marks,omitempty" bson:"marks"`
 	Options   []QuestionOptions  `json:"options,omitempty" bson:"options"`
-	Topics    []QuestionTopic    `json:"topics,omitempty" bson:"topics"`
+	Topics    []QuestionTopics    `json:"topics,omitempty" bson:"topics"`
+	Images    []QuestionImages    `json:"images,omitempty" bson:"images"`
 }
 
 type QuestionOptions struct {
@@ -15,6 +16,10 @@ type QuestionOptions struct {
 	Correct bool   `json:"correct" bson:"correct"`
 }
 
-type QuestionTopic struct {
+type QuestionTopics struct {
 	Topic string `json:"topic" bson:"topic"`
+}
+
+type QuestionImages struct {
+	Imageurl string `json:"imageurl" bson:"imageurl"`
 }

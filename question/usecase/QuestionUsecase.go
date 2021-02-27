@@ -53,7 +53,8 @@ func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain
 			questionText := allQuestions.Questions
 			marks := allQuestions.Marks
 			optionsArray := make([]domain.QuestionOptions, 0)
-			topicsArray := make([]domain.QuestionTopic, 0)
+			topicsArray := make([]domain.QuestionTopics, 0)
+			imagesArray := make([]domain.QuestionImages, 0)
 
 			// fmt.Printf("Question:-->  %s --- Marks:--> %s \n ", questionText, marks)
 			for _, option := range allQuestions.Options {
@@ -72,7 +73,7 @@ func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain
 			for _, topic := range allQuestions.Topics {
 
 				//fmt.Printf("Key---> %d \n", key)
-				qsTopic := new(domain.QuestionTopic)
+				qsTopic := new(domain.QuestionTopics)
 				qsTopic.Topic = topic.Topic
 				topicsArray = append(topicsArray, *qsTopic)
 
@@ -81,11 +82,24 @@ func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain
 
 			}
 
+			for _, imageurl := range allQuestions.Images {
+
+				//fmt.Printf("Key---> %d \n", key)
+				qsImageUrl := new(domain.QuestionImages)
+				qsImageUrl.Imageurl = imageurl.Imageurl
+				imagesArray = append(imagesArray, *qsImageUrl)
+
+				// fmt.Printf("ImageURL: %s  \n", qsImageUrl.Imageurl)
+				// fmt.Printf("%v \n --------------------", imagesArray)
+
+			}
+
 			singleQuestion.ID = _id
 			singleQuestion.Questions = questionText
 			singleQuestion.Marks = marks
 			singleQuestion.Options = optionsArray
 			singleQuestion.Topics = topicsArray
+			singleQuestion.Images = imagesArray
 
 			questionSet = append(questionSet, singleQuestion)
 
@@ -118,7 +132,8 @@ func (qsUC *questionUsecase) AddSingleQuestion(requestCtx context.Context, singl
 	questionText := singleMCQ.Questions
 	marks := singleMCQ.Marks
 	optionsArray := make([]domain.QuestionOptions, 0)
-	topicsArray := make([]domain.QuestionTopic, 0)
+	topicsArray := make([]domain.QuestionTopics, 0)
+	imagesArray := make([]domain.QuestionImages, 0)
 
 	// fmt.Printf("Question:-->  %s --- Marks:--> %s \n ", questionText, marks)
 	for _, option := range singleMCQ.Options {
@@ -137,7 +152,7 @@ func (qsUC *questionUsecase) AddSingleQuestion(requestCtx context.Context, singl
 	for _, topic := range singleMCQ.Topics {
 
 		//fmt.Printf("Key---> %d \n", key)
-		qsTopic := new(domain.QuestionTopic)
+		qsTopic := new(domain.QuestionTopics)
 		qsTopic.Topic = topic.Topic
 		topicsArray = append(topicsArray, *qsTopic)
 
@@ -146,11 +161,24 @@ func (qsUC *questionUsecase) AddSingleQuestion(requestCtx context.Context, singl
 
 	}
 
+	for _, imageurl := range singleMCQ.Images {
+
+		//fmt.Printf("Key---> %d \n", key)
+		qsImageUrl := new(domain.QuestionImages)
+		qsImageUrl.Imageurl = imageurl.Imageurl
+		imagesArray = append(imagesArray, *qsImageUrl)
+
+		// fmt.Printf("ImageURL: %s  \n", qsImageUrl.Imageurl)
+		// fmt.Printf("%v \n --------------------", imagesArray)
+
+	}
+
 	singleQuestion.ID = _id
 	singleQuestion.Questions = questionText
 	singleQuestion.Marks = marks
 	singleQuestion.Options = optionsArray
 	singleQuestion.Topics = topicsArray
+	singleQuestion.Images = imagesArray
 
 	fmt.Printf("Single Qs ->>> %v \t \n", singleQuestion)
 	return qsUC.questionRepo.AddSingleQuestion(ctx, singleQuestion, metadataID)
