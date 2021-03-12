@@ -52,7 +52,7 @@ func main() {
 	   	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
 		dbConn, err := sql.Open(`mysql`, dsn) */
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
 	dbConn := initializeMongoDatabase(ctx)
@@ -104,7 +104,8 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	// Set client options
 
 	//mongoURL := os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@mongodb:27017/?authSource=${ENV_MONGO_AUTH_DB}") // DEV
-	mongoURL := os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@54.255.95.50:27017/?authSource=${ENV_MONGO_AUTH_DB}") // Local
+	//mongoURL := os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@54.255.95.50:27017/?authSource=${ENV_MONGO_AUTH_DB}") // Local
+	mongoURL := "mongodb://adminuser:abc123@172.26.9.127:27017,172.26.27.145:27017,172.26.37.137:27017/?replicaSet=replica01&authSource=admin"
 	log.Println("Env User: " + os.Getenv("ENV_MONGO_USER"))
 	log.Println("S3 User: " + os.Getenv("ENV_S3_USERNAME"))
 	clientOptions := options.Client().ApplyURI(mongoURL)
@@ -125,7 +126,7 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 		log.Fatal("Couldn't connect to the database \n", err)
 		fmt.Errorf(err.Error())
 	} else {
-		fmt.Println(" New MongoDB connection created ! ")
+		fmt.Println(" New MongoDB Replica Set connection created ! ")
 	}
 
 	MongoConnClient = client
