@@ -105,7 +105,7 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 
 	//mongoURL := os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@mongodb:27017/?authSource=${ENV_MONGO_AUTH_DB}") // DEV
 	//mongoURL := os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@54.255.95.50:27017/?authSource=${ENV_MONGO_AUTH_DB}") // Local
-	mongoURL := "mongodb://adminuser:abc123@rs1.exam105.com:27017,rs2.exam105.com:27017,rs3.exam105.com:27017/exampleDB?replicaSet=replica01&authSource=admin"
+	mongoURL := "mongodb://adminuser:abc123@172.26.9.127:27017,172.26.27.145:27017,172.26.37.137:27017/exampleDB?replicaSet=replica01&authSource=admin"
 	log.Println("Env User: " + os.Getenv("ENV_MONGO_USER"))
 	log.Println("S3 User: " + os.Getenv("ENV_S3_USERNAME"))
 	clientOptions := options.Client().ApplyURI(mongoURL)
