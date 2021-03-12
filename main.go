@@ -105,7 +105,7 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 
 	//mongoURL := os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@mongodb:27017/?authSource=${ENV_MONGO_AUTH_DB}") // DEV
 	//mongoURL := os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@54.255.95.50:27017/?authSource=${ENV_MONGO_AUTH_DB}") // Local
-	mongoURL := "mongodb://adminuser:abc123@mongodb-01:27017,mongodb-02:27017,mongodb-03:27017/?replicaSet=replica01&authSource=admin"
+	mongoURL := "mongodb://adminuser:abc123@13.212.92.8:27017,175.41.187.46:27017,18.140.130.58:27017/?replicaSet=replica01&authSource=admin"
 	log.Println("Env User: " + os.Getenv("ENV_MONGO_USER"))
 	log.Println("S3 User: " + os.Getenv("ENV_S3_USERNAME"))
 	clientOptions := options.Client().ApplyURI(mongoURL)
@@ -117,14 +117,16 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 
 	if err != nil {
 		log.Fatal(err)
+		panic("Couldn't Connect to ReplicaSet")
 	}
 
 	// Check the connection
 	err = client.Ping(ctx, nil)
 
 	if err != nil {
-		log.Fatal("Couldn't connect to the database \n", err)
-		fmt.Errorf(err.Error())
+		log.Fatal("Couldn't connect to the database \n", err.Error())
+		panic("Database Replication PING Issue *** ")
+		//fmt.Errorf(err)
 	} else {
 		fmt.Println(" New MongoDB Replica Set connection created ! ")
 	}
