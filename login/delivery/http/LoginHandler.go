@@ -60,8 +60,9 @@ func (loginHandler *LoginHandler) Authenticate(echoCtx echo.Context) (err error)
 	// Set claims
 	claims := token.Claims.(jwt.MapClaims)
 	claims["name"] = username
+	claims["email"] = useremail
 	claims["authorized"] = true
-	claims["admin"] = false
+	claims["app"] = "exam105"
 	claims["exp"] = time.Now().Add(time.Minute * 15).Unix()
 
 	t, err := token.SignedString([]byte(os.Getenv("ENV_ACCESS_TOKEN_SECRET"))) 
@@ -73,7 +74,9 @@ func (loginHandler *LoginHandler) Authenticate(echoCtx echo.Context) (err error)
 	refreshToken := jwt.New(jwt.SigningMethodHS256)
 	rtClaims := refreshToken.Claims.(jwt.MapClaims)
 	rtClaims["name"] = username
+	rtClaims["email"] = useremail
 	rtClaims["authorized"] = true
+	rtClaims["app"] = "exam105"
 	rtClaims["exp"] = time.Now().Add(time.Hour * 12).Unix()
 	rt, err := refreshToken.SignedString([]byte(os.Getenv("ENV_REFRESH_TOKEN_SECRET")))
 	if err != nil {
@@ -96,11 +99,6 @@ func (loginHandler *LoginHandler) RefreshToken(echoCtx echo.Context) (err error)
 	tokenReq := tokenReqBody{}
 	echoCtx.Bind(&tokenReq)
 
-	// Parse takes the token string and a function for looking up the key.
-	// The latter is especially useful if you use multiple keys for your application.
-	// The standard is to use 'kid' in the head of the token to identify
-	// which key to use, but the parsed token (head and claims) is provided
-	// to the callback, providing flexibility.
 	token, err := jwt.Parse(tokenReq.RefreshToken, func(token *jwt.Token) (interface{}, error) {
 
 		// Don't forget to validate the alg is what you expect:
@@ -114,7 +112,8 @@ func (loginHandler *LoginHandler) RefreshToken(echoCtx echo.Context) (err error)
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 
 		username := fmt.Sprintf("%v", claims["name"]) 
-		useremail := "Skip"
+		useremail := fmt.Sprintf("%v", claims["email"])
+
 		requestCtx := echoCtx.Request().Context()
 		err = loginHandler.LoginUC.Authenticate(requestCtx, username, useremail)	
 		if err != nil {
@@ -123,7 +122,7 @@ func (loginHandler *LoginHandler) RefreshToken(echoCtx echo.Context) (err error)
 	
 		if claims["app"] == "exam105" && claims["authorized"] == true {
 
-			newTokenPair, err := generateTokenPair(username)
+			newTokenPair, err := generateTokenPair(username, useremail)
 			if err != nil {
 				return err
 			}
@@ -131,7 +130,7 @@ func (loginHandler *LoginHandler) RefreshToken(echoCtx echo.Context) (err error)
 			return echoCtx.JSON(http.StatusOK, newTokenPair)
 		}
 
-		return echo.ErrUnauthorized
+		return echoCtx.JSON(http.StatusUnauthorized, "Refresh token issue")
 	}
 
 	return err
@@ -199,12 +198,13 @@ func (loginHandler *LoginHandler) Delete(echoCtx echo.Context) error {
 
 }
 
-func generateTokenPair(username string) (map[string]string, error) {
+func generateTokenPair(username string, useremail string) (map[string]string, error) {
 
 	// Create token
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["name"] = username
+	claims["email"] = useremail
 	claims["authorized"] = true
 	claims["admin"] = false
 	claims["exp"] = time.Now().Add(time.Minute * 15).Unix()
@@ -218,6 +218,7 @@ func generateTokenPair(username string) (map[string]string, error) {
 	refreshToken := jwt.New(jwt.SigningMethodHS256)
 	rtClaims := refreshToken.Claims.(jwt.MapClaims)
 	rtClaims["name"] = username
+	claims["email"] = useremail
 	rtClaims["app"] = "exam105"
 	rtClaims["authorized"] = true
 	rtClaims["exp"] = time.Now().Add(time.Hour * 12).Unix()

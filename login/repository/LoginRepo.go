@@ -27,48 +27,23 @@ func (db *loginRepo) Authenticate(ctx context.Context, username string, useremai
 
 	database := db.Conn.Database("exam105")
 	operatorCollection := database.Collection("operator_account")
+	count, err := operatorCollection.CountDocuments(ctx,
+		bson.M{
+			"username": username,
+			"email": useremail,
+		})
 
-	if (useremail == "Skip"){
-		
-		count, err := operatorCollection.CountDocuments(ctx,
-			bson.M{
-				"username": username,
-			})	
-		
-		if err != nil {
-			log.Println( logging.MSG_LoginFailed, err.Error())
-			return err
-		}
-		
-		if count >= 1 {
-			log.Println( logging.MSG_DocumentFound)
+	if err != nil {
+		log.Println( logging.MSG_LoginFailed, err.Error())
+		return err
+	}
 	
-		} else {
-			log.Println( logging.MSG_DocumentNotFound)
-			return errors.New("Document doesn't exists")
-		}
-		
+	if count >= 1 {
+		log.Println( logging.MSG_DocumentFound)
+
 	} else {
-
-		count, err := operatorCollection.CountDocuments(ctx,
-			bson.M{
-				"username": username,
-				"email": useremail,
-			})
-
-		if err != nil {
-			log.Println( logging.MSG_LoginFailed, err.Error())
-			return err
-		}
-		
-		if count >= 1 {
-			log.Println( logging.MSG_DocumentFound)
-	
-		} else {
-			log.Println( logging.MSG_DocumentNotFound)
-			return errors.New("Document doesn't exists")
-		}
-		
+		log.Println( logging.MSG_DocumentNotFound)
+		return errors.New("Document doesn't exists")
 	}
 
 	return
