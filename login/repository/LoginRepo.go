@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/exam105-UPD/backend/logging"
 	"context"
 	"errors"
 	"fmt"
@@ -22,8 +23,55 @@ func NewLoginRepository(Conn *mongo.Client) domain.LoginRepository {
 	return &loginRepo{Conn}
 }
 
-func (lgRepo *loginRepo) Authenticate(ctx context.Context, username string, useremail string) {
+func (db *loginRepo) Authenticate(ctx context.Context, username string, useremail string) (err error) {
 
+	database := db.Conn.Database("exam105")
+	operatorCollection := database.Collection("operator_account")
+
+	if (useremail == "Skip"){
+		
+		count, err := operatorCollection.CountDocuments(ctx,
+			bson.M{
+				"username": username,
+			})	
+		
+		if err != nil {
+			log.Println( logging.MSG_LoginFailed, err.Error())
+			return err
+		}
+		
+		if count >= 1 {
+			log.Println( logging.MSG_DocumentFound)
+	
+		} else {
+			log.Println( logging.MSG_DocumentNotFound)
+			return errors.New("Document doesn't exists")
+		}
+		
+	} else {
+
+		count, err := operatorCollection.CountDocuments(ctx,
+			bson.M{
+				"username": username,
+				"email": useremail,
+			})
+
+		if err != nil {
+			log.Println( logging.MSG_LoginFailed, err.Error())
+			return err
+		}
+		
+		if count >= 1 {
+			log.Println( logging.MSG_DocumentFound)
+	
+		} else {
+			log.Println( logging.MSG_DocumentNotFound)
+			return errors.New("Document doesn't exists")
+		}
+		
+	}
+
+	return
 }
 
 func (db *loginRepo) Save(ctx context.Context, DEO_Model *domain.DataEntryOperatorModel) {
@@ -32,7 +80,7 @@ func (db *loginRepo) Save(ctx context.Context, DEO_Model *domain.DataEntryOperat
 	dataEntryOperatorCollection := database.Collection("operator_account")
 	insertResult, err := dataEntryOperatorCollection.InsertOne(ctx, DEO_Model)
 	if err != nil {
-		log.Fatal(err)
+		log.Println( logging.MSG_InsertUnsuccessful, err.Error())
 	}
 
 	fmt.Println("Inserted a single metadata document: ", insertResult)
@@ -47,13 +95,13 @@ func (db *loginRepo) GetAllOperators(ctx context.Context) ([]domain.DataEntryOpe
 
 	cursor, err := dataEntryOperatorCollection.Find(ctx, bson.D{})
 	if err != nil {
-		log.Fatal(err)
+		log.Println( logging.MSG_DocumentNotFound, err.Error())
 	}
 	defer cursor.Close(ctx)
 
 	var operator []domain.DataEntryOperatorModel
 	if err = cursor.All(ctx, &operator); err != nil {
-		log.Fatal(err)
+		log.Println( logging.MSG_MappingFailure, err.Error())
 	}
 
 	if len(operator) == 0 {
@@ -87,7 +135,6 @@ func (db *loginRepo) Update(ctx context.Context, dataEntryOperator *domain.DataE
 		updateResult.MatchedCount,
 		updateResult.ModifiedCount,
 		updateResult.UpsertedID,
-		//res.DeletedCount,
 	)
 
 	return updateResult.ModifiedCount, nil

@@ -1,6 +1,7 @@
 package http
 
 import (
+	"os"
 	"fmt"
 	"net/http"
 	"time"
@@ -32,6 +33,7 @@ func NewLoginHandler(e *echo.Echo, loginUseCase domain.LoginUsecase) {
 	grp := e.Group("superuser")
 
 	grp.POST("/login", handler.Authenticate)
+	grp.POST("/refreshToken", handler.RefreshToken)
 	grp.POST("/operator", handler.Save)
 	grp.GET("/operators", handler.GetAllOperators)
 	grp.POST("/operator/:id", handler.Update)
@@ -43,11 +45,13 @@ func (loginHandler *LoginHandler) Authenticate(echoCtx echo.Context) (err error)
 	username := echoCtx.FormValue("username")
 	useremail := echoCtx.FormValue("useremail")
 
+	requestCtx := echoCtx.Request().Context()
+	err = loginHandler.LoginUC.Authenticate(requestCtx, username, useremail)
+
 	fmt.Printf("Username: %s \nUserEmail: %s \n", username, useremail)
 
-	// Throws unauthorized error
-	if username != "jon" || useremail != "abc@efg.xyz" {
-		return echo.ErrUnauthorized
+	if err != nil {
+		return echoCtx.JSON(http.StatusNotFound, "User not found in database. Please check your credentials.")
 	}
 
 	// Create token
@@ -56,21 +60,81 @@ func (loginHandler *LoginHandler) Authenticate(echoCtx echo.Context) (err error)
 	// Set claims
 	claims := token.Claims.(jwt.MapClaims)
 	claims["name"] = username
-	claims["email"] = useremail
-	claims["admin"] = true
-	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+	claims["authorized"] = true
+	claims["admin"] = false
+	claims["exp"] = time.Now().Add(time.Minute * 15).Unix()
 
-	// Generate encoded token and send it as response.
-	t, err := token.SignedString([]byte("secret")) // This should come from Env variable
+	t, err := token.SignedString([]byte(os.Getenv("ENV_ACCESS_TOKEN_SECRET"))) 
 	if err != nil {
 		return err
 	}
 
-	//QuestionHandler. 
+	// Generate Refresh-Token
+	refreshToken := jwt.New(jwt.SigningMethodHS256)
+	rtClaims := refreshToken.Claims.(jwt.MapClaims)
+	rtClaims["name"] = username
+	rtClaims["authorized"] = true
+	rtClaims["exp"] = time.Now().Add(time.Hour * 12).Unix()
+	rt, err := refreshToken.SignedString([]byte(os.Getenv("ENV_REFRESH_TOKEN_SECRET")))
+	if err != nil {
+		return err
+	}
+
 	return echoCtx.JSON(http.StatusOK, map[string]string{
-		"token": t,
+		"access_token": t,
+		"refresh_token": rt,
 	})
 	
+}
+
+func (loginHandler *LoginHandler) RefreshToken(echoCtx echo.Context) (err error) {
+	
+	type tokenReqBody struct {
+		RefreshToken string `json:"refresh_token"`
+	}
+
+	tokenReq := tokenReqBody{}
+	echoCtx.Bind(&tokenReq)
+
+	// Parse takes the token string and a function for looking up the key.
+	// The latter is especially useful if you use multiple keys for your application.
+	// The standard is to use 'kid' in the head of the token to identify
+	// which key to use, but the parsed token (head and claims) is provided
+	// to the callback, providing flexibility.
+	token, err := jwt.Parse(tokenReq.RefreshToken, func(token *jwt.Token) (interface{}, error) {
+
+		// Don't forget to validate the alg is what you expect:
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return []byte(os.Getenv("ENV_REFRESH_TOKEN_SECRET")), nil
+	})
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+
+		username := fmt.Sprintf("%v", claims["name"]) 
+		useremail := "Skip"
+		requestCtx := echoCtx.Request().Context()
+		err = loginHandler.LoginUC.Authenticate(requestCtx, username, useremail)	
+		if err != nil {
+			return echoCtx.JSON(http.StatusNotFound, "User not found in database. Please check your credentials.")
+		}
+	
+		if claims["app"] == "exam105" && claims["authorized"] == true {
+
+			newTokenPair, err := generateTokenPair(username)
+			if err != nil {
+				return err
+			}
+
+			return echoCtx.JSON(http.StatusOK, newTokenPair)
+		}
+
+		return echo.ErrUnauthorized
+	}
+
+	return err
 }
 
 func (loginHandler *LoginHandler) Save(echoCtx echo.Context) (err error) {
@@ -134,6 +198,41 @@ func (loginHandler *LoginHandler) Delete(echoCtx echo.Context) error {
 	return echoCtx.JSON(http.StatusOK, delete)
 
 }
+
+func generateTokenPair(username string) (map[string]string, error) {
+
+	// Create token
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["name"] = username
+	claims["authorized"] = true
+	claims["admin"] = false
+	claims["exp"] = time.Now().Add(time.Minute * 15).Unix()
+
+	access_token, err := token.SignedString([]byte(os.Getenv("ENV_ACCESS_TOKEN_SECRET")))
+	if err != nil {
+		return nil, err
+	}
+
+	//Refresh Token
+	refreshToken := jwt.New(jwt.SigningMethodHS256)
+	rtClaims := refreshToken.Claims.(jwt.MapClaims)
+	rtClaims["name"] = username
+	rtClaims["app"] = "exam105"
+	rtClaims["authorized"] = true
+	rtClaims["exp"] = time.Now().Add(time.Hour * 12).Unix()
+
+	refresh_token, err := refreshToken.SignedString([]byte(os.Getenv("ENV_REFRESH_TOKEN_SECRET")))
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]string{
+		"access_token":  access_token,
+		"refresh_token": refresh_token,
+	}, nil
+}
+
 
 func getStatusCode(err error) int {
 	if err == nil {

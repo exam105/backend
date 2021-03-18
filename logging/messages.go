@@ -17,6 +17,9 @@ var MSG_InsertSuccessful string
 var MSG_EmptyMetadata string
 var MSG_MappingFailure string
 var MSG_BulkwriteFailed string
+var MSG_LoginFailed string
+var MSG_DocumentFound string
+
 
 func InitializeMessages(){
 	
@@ -31,6 +34,9 @@ func InitializeMessages(){
 	MSG_InsertSuccessful = viper.GetString(`errMessages.insertSuccessful`)
 	MSG_EmptyMetadata = viper.GetString(`errMessages.emptyMetadata`)
 	MSG_MappingFailure = viper.GetString(`errMessages.mappingFailure`)
-	MSG_BulkwriteFailed = viper.GetString(`errMessages.bulkwriteFailed`)
+	MSG_LoginFailed = viper.GetString(`errMessages.loginFailed`)
+
+	// Success Messages
+	MSG_DocumentFound = viper.GetString(`successMessages.documentFound`)
 
 }

@@ -22,7 +22,14 @@ func NewLoginUsecase(logRepo domain.LoginRepository, timeout time.Duration) doma
 	}
 }
 
-func (loginUC *loginUsecase) Authenticate(ctx context.Context) {}
+func (loginUC *loginUsecase) Authenticate(ctx context.Context, username string, useremail string) (err error){
+
+	ctx, cancel := context.WithTimeout(ctx, loginUC.contextTimeout)
+	defer cancel()
+
+	return loginUC.loginRepo.Authenticate(ctx, username, useremail)
+
+}
 
 func (loginUC *loginUsecase) Save(ctx context.Context, DEO_Model *domain.DataEntryOperatorModel) (err error) {
 

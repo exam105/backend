@@ -25,6 +25,10 @@
     "conversionUnsuccessful": "Document not found. Please check the ID.",
     "emptyMetadata": "Metadata collection is empty",
     "mappingFailure": "Couldn't map data to object",
-    "bulkwriteFailed": "BulkWrite operation failed"     
+    "bulkwriteFailed": "BulkWrite operation failed",
+    "loginFailed":"Login failed sue to invalied credential. Please check your username and passowrd."
+  },
+  "successMessages":{
+    "documentFound": "Document found."
   }
 }

@@ -14,7 +14,7 @@ type DataEntryOperatorModel struct {
 
 // Login Use Case / Service layer
 type LoginUsecase interface {
-	Authenticate(ctx context.Context)
+	Authenticate(ctx context.Context, username string, useremail string) error
 	Save(ctx context.Context, dataEntryOperator *DataEntryOperatorModel) error
 	GetAllOperators(ctx context.Context) ([]DataEntryOperatorModel, error)
 	Update(ctx context.Context, dataEntryOperator *DataEntryOperatorModel, objectId primitive.ObjectID) (int64, error)
@@ -23,7 +23,7 @@ type LoginUsecase interface {
 
 // ArticleRepository represent the article's repository contract
 type LoginRepository interface {
-	Authenticate(ctx context.Context, username string, useremail string)
+	Authenticate(ctx context.Context, username string, useremail string) error
 	Save(ctx context.Context, dataEntryOperator *DataEntryOperatorModel)
 	GetAllOperators(ctx context.Context) ([]DataEntryOperatorModel, error)
 	Update(ctx context.Context, dataEntryOperator *DataEntryOperatorModel, objectId primitive.ObjectID) (int64, error)
