@@ -20,6 +20,21 @@ type MCQModel []struct {
 	Images		image  `json:"images,omitempty" bson:"images,omitempty"`
 }
 
+type TheoryModel []struct {
+	Subject   string `json:"subject,omitempty" bson:"subject,omitempty"`
+	System    string `json:"system,omitempty" bson:"system,omitempty"`
+	Board     string `json:"board,omitempty" bson:"board,omitempty"`
+	Series    string `json:"series,omitempty" bson:"series,omitempty"`
+	Paper     string `json:"paper,omitempty" bson:"paper,omitempty"`
+	Year      string `json:"year,omitempty" bson:"year,omitempty"`
+	Month     string `json:"month,omitempty" bson:"month,omitempty"`
+	Questions string `json:"questions,omitempty" bson:"questions,omitempty"`
+	Marks     string `json:"marks,omitempty" bson:"marks,omitempty"`
+	Answer    string `json:"answer,omitempty" bson:"answer"`
+	Topics    topic  `json:"topics,omitempty" bson:"topics,omitempty"`
+	Images    image  `json:"images,omitempty" bson:"images,omitempty"`
+}
+
 type option []struct {
 	Option  string  `json:"option" bson:"option"`
 	Correct bool    `json:"correct" bson:"correct"`
@@ -48,6 +63,7 @@ type QuestionUsecase interface {
 	GetMCQsByMetadataID(requestCtx context.Context, docID string) ([]DisplayQuestion, error)
 	
 	SaveMCQ(requestCtx context.Context, questions *MCQModel, username string, useremail string) (error)	
+	SaveTheoryQuestion(requestCtx context.Context, questions *TheoryModel, username string, useremail string) (error)
 	AddSingleQuestion(requestCtx context.Context, question *Question, metadataID string) (int64, error)	
 	GetQuestion(requestCtx context.Context, questionID string) (Question, error)
 	UpdateQuestion(requestCtx context.Context, updatedQuestion Question, questionID string) (int64, error)

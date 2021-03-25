@@ -31,33 +31,33 @@ func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain
 	questionSet := []interface{}{}
 	questionHexIds := make([]string, 0)
 
-	for key, allQuestions := range *allMcqs {
+	for key, currentQuesPointer := range *allMcqs {
 
 		singleQuestion := new(domain.Question)
 
 		fmt.Printf("\n *************************** \n")
 		if key == 0 {
 
-			metadataBson.System = allQuestions.System
-			metadataBson.Board = allQuestions.Board
-			metadataBson.Subject = allQuestions.Subject
-			metadataBson.Year = allQuestions.Year
-			metadataBson.Month = allQuestions.Month
-			metadataBson.Series = allQuestions.Series
-			metadataBson.Paper = allQuestions.Paper
+			metadataBson.System = currentQuesPointer.System
+			metadataBson.Board = currentQuesPointer.Board
+			metadataBson.Subject = currentQuesPointer.Subject
+			metadataBson.Year = currentQuesPointer.Year
+			metadataBson.Month = currentQuesPointer.Month
+			metadataBson.Series = currentQuesPointer.Series
+			metadataBson.Paper = currentQuesPointer.Paper
 			metadataBson.Username = username
 			metadataBson.Useremail = useremail
 
 		} else {
 			_id := primitive.NewObjectID()
-			questionText := allQuestions.Questions
-			marks := allQuestions.Marks
+			questionText := currentQuesPointer.Questions
+			marks := currentQuesPointer.Marks
 			optionsArray := make([]domain.QuestionOptions, 0)
 			topicsArray := make([]domain.QuestionTopics, 0)
 			imagesArray := make([]domain.QuestionImages, 0)
 
 			// fmt.Printf("Question:-->  %s --- Marks:--> %s \n ", questionText, marks)
-			for _, option := range allQuestions.Options {
+			for _, option := range currentQuesPointer.Options {
 
 				//fmt.Printf("Key---> %d \n", key)
 				qsOption := new(domain.QuestionOptions)
@@ -70,7 +70,7 @@ func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain
 
 			}
 
-			for _, topic := range allQuestions.Topics {
+			for _, topic := range currentQuesPointer.Topics {
 
 				//fmt.Printf("Key---> %d \n", key)
 				qsTopic := new(domain.QuestionTopics)
@@ -82,7 +82,7 @@ func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain
 
 			}
 
-			for _, imageurl := range allQuestions.Images {
+			for _, imageurl := range currentQuesPointer.Images {
 
 				//fmt.Printf("Key---> %d \n", key)
 				qsImageUrl := new(domain.QuestionImages)
@@ -119,6 +119,92 @@ func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain
 	qsUC.questionRepo.SaveQuestionMetadata(ctx, metadataBson)
 	qsUC.questionRepo.SaveAllQuestions(ctx, questionSet)
 	return nil
+}
+
+func (qsUC *questionUsecase) SaveTheoryQuestion(requestCtx context.Context, allMcqs *domain.TheoryModel, username string, useremail string) (error) {
+
+	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
+	defer cancel()
+
+	metadataBson := new(domain.MetadataBson)
+	questionSet := []interface{}{}
+	questionHexIds := make([]string, 0)
+
+	for key, currentQuesPointer := range *allMcqs {
+
+		singleQuestion := new(domain.TheoryQuestion)
+
+		fmt.Printf("\n *************************** \n")
+		if key == 0 {
+
+			metadataBson.System = currentQuesPointer.System
+			metadataBson.Board = currentQuesPointer.Board
+			metadataBson.Subject = currentQuesPointer.Subject
+			metadataBson.Year = currentQuesPointer.Year
+			metadataBson.Month = currentQuesPointer.Month
+			metadataBson.Series = currentQuesPointer.Series
+			metadataBson.Paper = currentQuesPointer.Paper
+			metadataBson.Username = username
+			metadataBson.Useremail = useremail
+
+		} else {
+			_id := primitive.NewObjectID()
+			questionText := currentQuesPointer.Questions
+			marks := currentQuesPointer.Marks
+			answer := currentQuesPointer.Answer
+			topicsArray := make([]domain.QuestionTopics, 0)
+			imagesArray := make([]domain.QuestionImages, 0)
+
+			for _, topic := range currentQuesPointer.Topics {
+
+				//fmt.Printf("Key---> %d \n", key)
+				qsTopic := new(domain.QuestionTopics)
+				qsTopic.Topic = topic.Topic
+				topicsArray = append(topicsArray, *qsTopic)
+
+				// fmt.Printf("Topic: %s  \n", qsTopic.Topic)
+				// fmt.Printf("%v \n --------------------", topicsArray)
+
+			}
+
+			for _, imageurl := range currentQuesPointer.Images {
+
+				//fmt.Printf("Key---> %d \n", key)
+				qsImageUrl := new(domain.QuestionImages)
+				qsImageUrl.Imageurl = imageurl.Imageurl
+				imagesArray = append(imagesArray, *qsImageUrl)
+
+				// fmt.Printf("ImageURL: %s  \n", qsImageUrl.Imageurl)
+				// fmt.Printf("%v \n --------------------", imagesArray)
+
+			}
+
+			singleQuestion.ID = _id
+			singleQuestion.Questions = questionText
+			singleQuestion.Marks = marks
+			singleQuestion.Answer = answer
+			singleQuestion.Topics = topicsArray
+			singleQuestion.Images = imagesArray
+
+			questionSet = append(questionSet, singleQuestion)
+
+			//adding hexID to metadata
+			questionHexIds = append(questionHexIds, _id.Hex())
+
+			fmt.Printf("Single Qs ->>> %v \t \n", singleQuestion)
+		}
+	}
+
+	metadataBson.QuestionHexIds = questionHexIds
+
+	fmt.Println("*******************************________________**********************************")
+	fmt.Printf("\n %#v", questionSet)
+	fmt.Printf("\n ID---- %#v", questionHexIds)
+
+	qsUC.questionRepo.SaveQuestionMetadata(ctx, metadataBson)
+	qsUC.questionRepo.SaveAllQuestions(ctx, questionSet)
+	return nil
+
 }
 
 func (qsUC *questionUsecase) AddSingleQuestion(requestCtx context.Context, singleMCQ *domain.Question, metadataID string) (int64, error) {
