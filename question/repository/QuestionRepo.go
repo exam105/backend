@@ -266,6 +266,25 @@ func (db *questionRepo) GetQuestion(ctx context.Context, questionID string) (dom
 	return singleQuestion, nil
 }
 
+func (db *questionRepo) GetTheoryQuestion(ctx context.Context, questionID string) (domain.TheoryQuestion, error) {
+
+	database := db.Conn.Database("exam105")
+	questionsCollection := database.Collection("questions")
+	question, err := primitive.ObjectIDFromHex(questionID)
+
+	var singleQuestion domain.TheoryQuestion
+	err = questionsCollection.FindOne(ctx, 
+		bson.M{"_id": question}).Decode(&singleQuestion)
+
+	if err != nil {
+		log.Println( logging.MSG_WrongDocumentID, err.Error())
+		return domain.TheoryQuestion{}, fmt.Errorf(logging.MSG_WrongDocumentID + "\n ID: %s \t" + err.Error(), questionID)
+	}
+
+	fmt.Printf("Questions: %+v \n", singleQuestion)
+	return singleQuestion, nil
+}
+
 func (db *questionRepo) UpdateQuestion(ctx context.Context, updatedQuestion domain.Question, questionID string) (int64, error) {
 
 	database := db.Conn.Database("exam105")

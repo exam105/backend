@@ -46,6 +46,7 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 
 	// Theory Questions
 	grp.POST("/questions/theory", handler.SaveTheoryQs)
+	grp.GET("/question/theory/:id", handler.GetTheoryQuestionByID)
 
 	grp.GET("/question/s3credentials",handler.GetS3Credentials)
 }
@@ -167,6 +168,23 @@ func (qsHandler *QuestionHandler) GetQuestionByID(echoCtx echo.Context) (error){
 	requestCtx := echoCtx.Request().Context()
 
 	question, err := qsHandler.QuestionUC.GetQuestion(requestCtx, questionID)
+	
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+
+	return echoCtx.JSON(http.StatusOK, question)
+
+}
+
+func (qsHandler *QuestionHandler) GetTheoryQuestionByID(echoCtx echo.Context) (error){
+
+	_, _ = restricted(echoCtx)
+
+	questionID := echoCtx.Param("id")	
+	requestCtx := echoCtx.Request().Context()
+
+	question, err := qsHandler.QuestionUC.GetTheoryQuestion(requestCtx, questionID)
 	
 	if err != nil {
 		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
