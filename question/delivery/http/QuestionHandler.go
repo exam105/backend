@@ -41,14 +41,15 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 	grp.GET("/questions/:id", handler.GetListOfMCQsByMetadataID)
 	grp.GET("/question/:id", handler.GetQuestionByID)
 	grp.POST("/question/:id", handler.UpdateQuestionByID)
-	grp.PUT("/question/meta/:metaid", handler.AddQuestion)
+	grp.PUT("/question/meta/:metaid", handler.AddQuestion)	
 	grp.DELETE("/question/:id/meta/:metaid", handler.DeleteQuestionByID)
 
 	// Theory Questions
 	grp.POST("/questions/theory", handler.SaveTheoryQs)
 	grp.GET("/question/theory/:id", handler.GetTheoryQuestionByID)
 	grp.POST("/question/theory/:id", handler.UpdateTheoryQuestionByID)
-	
+	grp.PUT("/question/theory/meta/:metaid", handler.AddTheoryQuestion)
+
 	grp.GET("/question/s3credentials",handler.GetS3Credentials)
 }
 
@@ -268,6 +269,29 @@ func (qsHandler *QuestionHandler) AddQuestion(echoCtx echo.Context) (error) {
 
 	requestCtx := echoCtx.Request().Context()
 	result, err  := qsHandler.QuestionUC.AddSingleQuestion(requestCtx, &singleQuestion, metaID)
+	
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+
+	return echoCtx.JSON(http.StatusCreated, result)
+
+}
+
+func (qsHandler *QuestionHandler) AddTheoryQuestion(echoCtx echo.Context) (error) {
+
+	_, _ = restricted(echoCtx)
+	metaID := echoCtx.Param("metaid")
+
+	var singleQuestion domain.TheoryQuestion
+	err := echoCtx.Bind(&singleQuestion)
+
+	if err != nil {
+		return echoCtx.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	requestCtx := echoCtx.Request().Context()
+	result, err  := qsHandler.QuestionUC.AddSingleTheoryQuestion(requestCtx, &singleQuestion, metaID)
 	
 	if err != nil {
 		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})

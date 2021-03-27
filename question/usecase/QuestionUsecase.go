@@ -272,6 +272,57 @@ func (qsUC *questionUsecase) AddSingleQuestion(requestCtx context.Context, singl
 
 }
 
+func (qsUC *questionUsecase) AddSingleTheoryQuestion(requestCtx context.Context, singleMCQ *domain.TheoryQuestion, metadataID string) (int64, error) {
+	
+	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
+	defer cancel()
+
+	singleQuestion := new(domain.TheoryQuestion)
+	
+	_id := primitive.NewObjectID()
+	questionText := singleMCQ.Questions
+	marks := singleMCQ.Marks
+	answer := singleMCQ.Answer
+	topicsArray := make([]domain.QuestionTopics, 0)
+	imagesArray := make([]domain.QuestionImages, 0)
+
+	for _, topic := range singleMCQ.Topics {
+
+		//fmt.Printf("Key---> %d \n", key)
+		qsTopic := new(domain.QuestionTopics)
+		qsTopic.Topic = topic.Topic
+		topicsArray = append(topicsArray, *qsTopic)
+
+		// fmt.Printf("Topic: %s  \n", qsTopic.Topic)
+		// fmt.Printf("%v \n --------------------", topicsArray)
+
+	}
+
+	for _, imageurl := range singleMCQ.Images {
+
+		//fmt.Printf("Key---> %d \n", key)
+		qsImageUrl := new(domain.QuestionImages)
+		qsImageUrl.Imageurl = imageurl.Imageurl
+		imagesArray = append(imagesArray, *qsImageUrl)
+
+		// fmt.Printf("ImageURL: %s  \n", qsImageUrl.Imageurl)
+		// fmt.Printf("%v \n --------------------", imagesArray)
+
+	}
+
+	singleQuestion.ID = _id
+	singleQuestion.Questions = questionText
+	singleQuestion.Marks = marks
+	singleQuestion.Answer = answer
+	singleQuestion.Topics = topicsArray
+	singleQuestion.Images = imagesArray
+
+	fmt.Printf("Single Qs ->>> %v \t \n", singleQuestion)
+	return qsUC.questionRepo.AddSingleTheoryQuestion(ctx, singleQuestion, metadataID)
+	//return &singleQuestion, nil
+
+}
+
 func (qsUC *questionUsecase) GetMetadataById(requestCtx context.Context, username string, useremail string) ([]domain.MetadataBson, error) {
 
 	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)

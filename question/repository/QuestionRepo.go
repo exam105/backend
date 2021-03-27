@@ -497,7 +497,7 @@ func (db *questionRepo) AddSingleQuestion(ctx context.Context, singleQuestion *d
 
 	fmt.Println("Question IDs: ", questionHexs)	
 
-	// 1. Updating Metadata collection to add new QuestionID
+	// 2.0 Updating Metadata collection to add new QuestionID
 	filter := bson.M{"_id": bson.M{"$eq": metaHexID}}
 	questionsSlice := bson.M{"$set": bson.M{"question_hex_ids": questionHexs}}
 	updated, updateErr := metadataCollection.UpdateOne(ctx, filter, questionsSlice)	
@@ -507,7 +507,7 @@ func (db *questionRepo) AddSingleQuestion(ctx context.Context, singleQuestion *d
 		return -1, fmt.Errorf(logging.MSG_UpdateUnsuccessful + "\n ID: %s \t" + updateErr.Error(), updated.ModifiedCount)		
 	}
 	
-	// 2.Adding question to the Question Collection
+	// 2.1 Adding question to the Question Collection
 	insert, insertErr := questionsCollection.InsertOne(ctx, singleQuestion)
 	if insertErr != nil {
 		log.Println( logging.MSG_InsertUnsuccessful, insertErr.Error())
@@ -521,6 +521,62 @@ func (db *questionRepo) AddSingleQuestion(ctx context.Context, singleQuestion *d
 	)
 
 	return  updated.ModifiedCount, nil
+}
+
+func (db *questionRepo) AddSingleTheoryQuestion(ctx context.Context, singleQuestion *domain.TheoryQuestion, metadataID string) (int64, error) {
+
+	database := db.Conn.Database("exam105")
+   questionsCollection := database.Collection("questions")
+   metadataCollection := database.Collection("metadata")
+
+   metaHexID, meta_err := primitive.ObjectIDFromHex(metadataID)
+
+   if meta_err != nil {
+	   log.Println(logging.MSG_ConversionUnsuccessful, meta_err.Error() )
+	   return -1, fmt.Errorf(logging.MSG_ConversionUnsuccessful + "\n ID: %s \t" + meta_err.Error(), metadataID)		
+   }
+
+   // 1. Adding questionID to the Metadata question array
+   var metadataSingleRecord domain.MetadataBson
+   err := metadataCollection.FindOne(ctx, bson.M{"_id": metaHexID}).Decode(&metadataSingleRecord)
+   
+   if err != nil {
+	   log.Println( logging.MSG_DocumentNotFound, err.Error())
+	   return -1, fmt.Errorf(logging.MSG_DocumentNotFound + "\n ID: %s \t" + err.Error(), metaHexID)			
+   }
+   
+   // fmt.Printf("Full list   : %s\t \n", metadataSingleRecord.QuestionHexIds)
+
+   var questionHexs = make([]string,0)
+   questionHexs = append(questionHexs, metadataSingleRecord.QuestionHexIds...)
+   questionHexs = append(questionHexs, singleQuestion.ID.Hex())	//New QuestionHexID added to the slice
+
+   fmt.Println("Question IDs: ", questionHexs)	
+
+   // 2.0 Updating Metadata collection to add new QuestionID
+   filter := bson.M{"_id": bson.M{"$eq": metaHexID}}
+   questionsSlice := bson.M{"$set": bson.M{"question_hex_ids": questionHexs}}
+   updated, updateErr := metadataCollection.UpdateOne(ctx, filter, questionsSlice)	
+
+   if updateErr != nil {
+	   log.Println( logging.MSG_UpdateUnsuccessful, updateErr.Error())
+	   return -1, fmt.Errorf(logging.MSG_UpdateUnsuccessful + "\n ID: %s \t" + updateErr.Error(), updated.ModifiedCount)		
+   }
+   
+   // 2.1 Adding question to the Question Collection
+   insert, insertErr := questionsCollection.InsertOne(ctx, singleQuestion)
+   if insertErr != nil {
+	   log.Println( logging.MSG_InsertUnsuccessful, insertErr.Error())
+	   return -1, fmt.Errorf(logging.MSG_InsertUnsuccessful + "\n ID: %s \t" + updateErr.Error(), insert.InsertedID)		
+   } 
+
+   fmt.Printf(
+	   "insert: %d, updated: %d",
+	   insert.InsertedID,
+	   updated.ModifiedCount,
+   )
+
+   return  updated.ModifiedCount, nil
 }
 
 func removeIndex(s []string, index int) []string {

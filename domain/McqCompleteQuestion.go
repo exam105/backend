@@ -64,11 +64,16 @@ type QuestionUsecase interface {
 	
 	SaveMCQ(requestCtx context.Context, questions *MCQModel, username string, useremail string) (error)	
 	SaveTheoryQuestion(requestCtx context.Context, questions *TheoryModel, username string, useremail string) (error)
+	
 	AddSingleQuestion(requestCtx context.Context, question *Question, metadataID string) (int64, error)	
+	AddSingleTheoryQuestion(requestCtx context.Context, question *TheoryQuestion, metadataID string) (int64, error)	
+	
 	GetQuestion(requestCtx context.Context, questionID string) (Question, error)
 	GetTheoryQuestion(requestCtx context.Context, questionID string) (TheoryQuestion, error)
+	
 	UpdateQuestion(requestCtx context.Context, updatedQuestion Question, questionID string) (int64, error)
 	UpdateTheoryQuestion(requestCtx context.Context, updatedQuestion TheoryQuestion, questionID string) (int64, error)
+	
 	DeleteQuestion(requestCtx context.Context, metadataID string, questionID string) (int64, error)
 	
 }
@@ -84,10 +89,14 @@ type QuestionRepository interface {
 	GetMCQsByMetadataID(requestCtx context.Context, docID string) ([]DisplayQuestion, error)	
 
 	AddSingleQuestion(ctx context.Context, mcq *Question, metadataID string) (int64,error)
+	AddSingleTheoryQuestion(requestCtx context.Context, question *TheoryQuestion, metadataID string) (int64, error)	
+	
 	GetQuestion(requestCtx context.Context, questionID string) (Question, error)
 	GetTheoryQuestion(requestCtx context.Context, questionID string) (TheoryQuestion, error)
+	
 	UpdateQuestion(requestCtx context.Context, updatedQuestion Question, questionID string) (int64, error)
 	UpdateTheoryQuestion(requestCtx context.Context, updatedQuestion TheoryQuestion, questionID string) (int64, error)
+	
 	DeleteQuestion(requestCtx context.Context, metadataID string, questionID string) (int64, error)
 
 }
