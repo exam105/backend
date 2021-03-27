@@ -47,7 +47,8 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 	// Theory Questions
 	grp.POST("/questions/theory", handler.SaveTheoryQs)
 	grp.GET("/question/theory/:id", handler.GetTheoryQuestionByID)
-
+	grp.POST("/question/theory/:id", handler.UpdateTheoryQuestionByID)
+	
 	grp.GET("/question/s3credentials",handler.GetS3Credentials)
 }
 
@@ -213,6 +214,27 @@ func (qsHandler *QuestionHandler) UpdateQuestionByID(echoCtx echo.Context) (erro
 
 	return echoCtx.JSON(http.StatusOK, questionResult)
 }
+
+func (qsHandler *QuestionHandler) UpdateTheoryQuestionByID(echoCtx echo.Context) (error){
+	
+	_, _ = restricted(echoCtx)
+
+	docID := echoCtx.Param("id")
+
+	var updatedQuestion domain.TheoryQuestion
+	err := echoCtx.Bind(&updatedQuestion)
+
+	requestCtx := echoCtx.Request().Context()
+
+	questionResult, err := qsHandler.QuestionUC.UpdateTheoryQuestion(requestCtx, updatedQuestion, docID)
+	
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+
+	return echoCtx.JSON(http.StatusOK, questionResult)
+}
+
 
 func (qsHandler *QuestionHandler) DeleteQuestionByID(echoCtx echo.Context) (error) {
 

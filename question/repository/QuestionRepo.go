@@ -315,6 +315,36 @@ func (db *questionRepo) UpdateQuestion(ctx context.Context, updatedQuestion doma
 	return result.ModifiedCount, nil
 }
 
+func (db *questionRepo) UpdateTheoryQuestion(ctx context.Context, updatedQuestion domain.TheoryQuestion, questionID string) (int64, error) {
+
+	database := db.Conn.Database("exam105")
+	questionCollection := database.Collection("questions")
+
+	questionId, err := primitive.ObjectIDFromHex(questionID)
+
+	if err != nil {
+		log.Println( logging.MSG_ConversionUnsuccessful, err.Error())
+		return -1, fmt.Errorf(logging.MSG_ConversionUnsuccessful + "\n ID: %s \t" + err.Error(), questionID)
+	} 
+
+	// Use it's ID to replace
+	filter := bson.M{"_id": questionId}
+	result, err := questionCollection.ReplaceOne(ctx, filter, updatedQuestion)
+
+	if err != nil {
+		log.Println( logging.MSG_UpdateUnsuccessful, err.Error())
+		return -1, fmt.Errorf(logging.MSG_UpdateUnsuccessful + "\n ID: %s \t" + err.Error(), result)
+	}
+
+	fmt.Printf(
+		"insert: %d, updated: %d, deleted: %d /n",
+		result.MatchedCount,
+		result.ModifiedCount,
+		result.UpsertedCount,
+	)
+	return result.ModifiedCount, nil
+}
+
 func (db *questionRepo) DeleteQuestion(ctx context.Context, metaID string, questionID string) (int64, error) {
 
 	database := db.Conn.Database("exam105")

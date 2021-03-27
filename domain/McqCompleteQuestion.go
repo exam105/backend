@@ -68,6 +68,7 @@ type QuestionUsecase interface {
 	GetQuestion(requestCtx context.Context, questionID string) (Question, error)
 	GetTheoryQuestion(requestCtx context.Context, questionID string) (TheoryQuestion, error)
 	UpdateQuestion(requestCtx context.Context, updatedQuestion Question, questionID string) (int64, error)
+	UpdateTheoryQuestion(requestCtx context.Context, updatedQuestion TheoryQuestion, questionID string) (int64, error)
 	DeleteQuestion(requestCtx context.Context, metadataID string, questionID string) (int64, error)
 	
 }
@@ -86,6 +87,7 @@ type QuestionRepository interface {
 	GetQuestion(requestCtx context.Context, questionID string) (Question, error)
 	GetTheoryQuestion(requestCtx context.Context, questionID string) (TheoryQuestion, error)
 	UpdateQuestion(requestCtx context.Context, updatedQuestion Question, questionID string) (int64, error)
+	UpdateTheoryQuestion(requestCtx context.Context, updatedQuestion TheoryQuestion, questionID string) (int64, error)
 	DeleteQuestion(requestCtx context.Context, metadataID string, questionID string) (int64, error)
 
 }
