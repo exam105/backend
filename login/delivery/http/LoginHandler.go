@@ -54,39 +54,42 @@ func (loginHandler *LoginHandler) Authenticate(echoCtx echo.Context) (err error)
 		return echoCtx.JSON(http.StatusNotFound, "User not found in database. Please check your credentials.")
 	}
 
-	// Create token
-	token := jwt.New(jwt.SigningMethodHS256)
+	
+	return echoCtx.JSON(http.StatusOK, generateTokenPair(useremail, useremail))
 
-	// Set claims
-	claims := token.Claims.(jwt.MapClaims)
-	claims["name"] = username
-	claims["email"] = useremail
-	claims["authorized"] = true
-	claims["app"] = "exam105"
-	claims["exp"] = time.Now().Add(time.Minute * 5).Unix()
+	// // Create token
+	// token := jwt.New(jwt.SigningMethodHS256)
 
-	t, err := token.SignedString([]byte(os.Getenv("ENV_ACCESS_TOKEN_SECRET"))) 
-	if err != nil {
-		return err
-	}
+	// // Set claims
+	// claims := token.Claims.(jwt.MapClaims)
+	// claims["name"] = username
+	// claims["email"] = useremail
+	// claims["authorized"] = true
+	// claims["app"] = "exam105"
+	// claims["exp"] = time.Now().Add(time.Minute * 5).Unix()
 
-	// Generate Refresh-Token
-	refreshToken := jwt.New(jwt.SigningMethodHS256)
-	rtClaims := refreshToken.Claims.(jwt.MapClaims)
-	rtClaims["name"] = username
-	rtClaims["email"] = useremail
-	rtClaims["authorized"] = true
-	rtClaims["app"] = "exam105"
-	rtClaims["exp"] = time.Now().Add(time.Minute * 15).Unix()
-	rt, err := refreshToken.SignedString([]byte(os.Getenv("ENV_REFRESH_TOKEN_SECRET")))
-	if err != nil {
-		return err
-	}
+	// t, err := token.SignedString([]byte(os.Getenv("ENV_ACCESS_TOKEN_SECRET"))) 
+	// if err != nil {
+	// 	return err
+	// }
 
-	return echoCtx.JSON(http.StatusOK, map[string]string{
-		"access_token": t,
-		"refresh_token": rt,
-	})
+	// // Generate Refresh-Token
+	// refreshToken := jwt.New(jwt.SigningMethodHS256)
+	// rtClaims := refreshToken.Claims.(jwt.MapClaims)
+	// rtClaims["name"] = username
+	// rtClaims["email"] = useremail
+	// rtClaims["authorized"] = true
+	// rtClaims["app"] = "exam105"
+	// rtClaims["exp"] = time.Now().Add(time.Minute * 15).Unix()
+	// rt, err := refreshToken.SignedString([]byte(os.Getenv("ENV_REFRESH_TOKEN_SECRET")))
+	// if err != nil {
+	// 	return err
+	// }
+
+	// return echoCtx.JSON(http.StatusOK, map[string]string{
+	// 	"access_token": t,
+	// 	"refresh_token": rt,
+	// })
 	
 }
 
@@ -122,10 +125,10 @@ func (loginHandler *LoginHandler) RefreshToken(echoCtx echo.Context) (err error)
 	
 		if claims["app"] == "exam105" && claims["authorized"] == true {
 
-			newTokenPair, err := generateTokenPair(username, useremail)
-			if err != nil {
-				return err
-			}
+			newTokenPair := generateTokenPair(username, useremail)
+			// if err != nil {
+			// 	return err
+			// }
 
 			return echoCtx.JSON(http.StatusOK, newTokenPair)
 		}
@@ -198,7 +201,7 @@ func (loginHandler *LoginHandler) Delete(echoCtx echo.Context) error {
 
 }
 
-func generateTokenPair(username string, useremail string) (map[string]string, error) {
+func generateTokenPair(username string, useremail string) (map[string]string) {
 
 	// Create token
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -207,12 +210,12 @@ func generateTokenPair(username string, useremail string) (map[string]string, er
 	claims["email"] = useremail
 	claims["authorized"] = true
 	claims["admin"] = false
-	claims["exp"] = time.Now().Add(time.Minute * 15).Unix()
+	claims["exp"] = time.Now().Add(time.Minute * 5).Unix()
 
-	access_token, err := token.SignedString([]byte(os.Getenv("ENV_ACCESS_TOKEN_SECRET")))
-	if err != nil {
-		return nil, err
-	}
+	access_token, _ := token.SignedString([]byte(os.Getenv("ENV_ACCESS_TOKEN_SECRET")))
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	//Refresh Token
 	refreshToken := jwt.New(jwt.SigningMethodHS256)
@@ -221,17 +224,17 @@ func generateTokenPair(username string, useremail string) (map[string]string, er
 	claims["email"] = useremail
 	rtClaims["app"] = "exam105"
 	rtClaims["authorized"] = true
-	rtClaims["exp"] = time.Now().Add(time.Hour * 12).Unix()
+	rtClaims["exp"] = time.Now().Add(time.Hour * 15).Unix()
 
-	refresh_token, err := refreshToken.SignedString([]byte(os.Getenv("ENV_REFRESH_TOKEN_SECRET")))
-	if err != nil {
-		return nil, err
-	}
+	refresh_token, _ := refreshToken.SignedString([]byte(os.Getenv("ENV_REFRESH_TOKEN_SECRET")))
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	return map[string]string{
 		"access_token":  access_token,
 		"refresh_token": refresh_token,
-	}, nil
+	}
 }
 
 
