@@ -54,8 +54,7 @@ func (loginHandler *LoginHandler) Authenticate(echoCtx echo.Context) (err error)
 		return echoCtx.JSON(http.StatusNotFound, "User not found in database. Please check your credentials.")
 	}
 
-	
-	return echoCtx.JSON(http.StatusOK, generateTokenPair(useremail, useremail))
+	return echoCtx.JSON(http.StatusOK, generateTokenPair(username, useremail))
 
 	// // Create token
 	// token := jwt.New(jwt.SigningMethodHS256)
@@ -221,7 +220,7 @@ func generateTokenPair(username string, useremail string) (map[string]string) {
 	refreshToken := jwt.New(jwt.SigningMethodHS256)
 	rtClaims := refreshToken.Claims.(jwt.MapClaims)
 	rtClaims["name"] = username
-	claims["email"] = useremail
+	rtClaims["email"] = useremail
 	rtClaims["app"] = "exam105"
 	rtClaims["authorized"] = true
 	rtClaims["exp"] = time.Now().Add(time.Minute * 15).Unix()
