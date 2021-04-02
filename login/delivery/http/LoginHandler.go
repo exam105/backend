@@ -63,7 +63,7 @@ func (loginHandler *LoginHandler) Authenticate(echoCtx echo.Context) (err error)
 	claims["email"] = useremail
 	claims["authorized"] = true
 	claims["app"] = "exam105"
-	claims["exp"] = time.Now().Add(time.Minute * 90).Unix()
+	claims["exp"] = time.Now().Add(time.Minute * 5).Unix()
 
 	t, err := token.SignedString([]byte(os.Getenv("ENV_ACCESS_TOKEN_SECRET"))) 
 	if err != nil {
@@ -77,7 +77,7 @@ func (loginHandler *LoginHandler) Authenticate(echoCtx echo.Context) (err error)
 	rtClaims["email"] = useremail
 	rtClaims["authorized"] = true
 	rtClaims["app"] = "exam105"
-	rtClaims["exp"] = time.Now().Add(time.Minute * 300).Unix()
+	rtClaims["exp"] = time.Now().Add(time.Minute * 15).Unix()
 	rt, err := refreshToken.SignedString([]byte(os.Getenv("ENV_REFRESH_TOKEN_SECRET")))
 	if err != nil {
 		return err
