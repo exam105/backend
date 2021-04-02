@@ -91,8 +91,8 @@ func (db *questionRepo) GetMetadataById(ctx context.Context, username string, us
 	}
 
 	if len(metadata) == 0 {
-		log.Println( logging.MSG_EmptyMetadata, err.Error())
-		return []domain.MetadataBson{}, fmt.Errorf(logging.MSG_EmptyMetadata + "\n ID: %s \t" + err.Error(), metadata)
+		log.Println( logging.MSG_EmptyMetadata, "You have added new operator and there is no data entered by the operator")		
+		return []domain.MetadataBson{}, nil
 	}
 
 	return metadata, nil
