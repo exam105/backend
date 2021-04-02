@@ -224,7 +224,7 @@ func generateTokenPair(username string, useremail string) (map[string]string) {
 	claims["email"] = useremail
 	rtClaims["app"] = "exam105"
 	rtClaims["authorized"] = true
-	rtClaims["exp"] = time.Now().Add(time.Hour * 15).Unix()
+	rtClaims["exp"] = time.Now().Add(time.Minute * 15).Unix()
 
 	refresh_token, _ := refreshToken.SignedString([]byte(os.Getenv("ENV_REFRESH_TOKEN_SECRET")))
 	// if err != nil {
