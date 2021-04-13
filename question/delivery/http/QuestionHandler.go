@@ -46,7 +46,7 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 
 	// Theory Questions
 	grp.POST("/questions/theory", handler.SaveTheoryQs)
-	grp.GET("/questions/theory/meta:id", handler.GetListOfMCQsByMetadataID)
+	grp.GET("/questions/theory/:metaid", handler.GetListOfMCQsByMetadataID)
 	grp.GET("/question/theory/:id", handler.GetTheoryQuestionByID)
 	grp.POST("/question/theory/:id", handler.UpdateTheoryQuestionByID)
 	grp.PUT("/question/theory/meta/:metaid", handler.AddTheoryQuestion)

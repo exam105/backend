@@ -55,7 +55,7 @@ type image []struct {
 // This struct will be used to display the list of questions to the operator
 type DisplayQuestion struct {
 	ID       		primitive.ObjectID 	`json:"id,omitempty" bson:"_id,omitempty"`
-	Questions 		string 				`json:"questions,omitempty" bson:"questions,omitempty"`
+	Question 		string 				`json:"question,omitempty" bson:"question,omitempty"`
 }
 
 // Question Use Case / Service layer
