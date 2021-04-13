@@ -47,10 +47,11 @@ func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain
 			metadataBson.Paper = currentQuesPointer.Paper
 			metadataBson.Username = username
 			metadataBson.Useremail = useremail
+			metadataBson.IsTheory = currentQuesPointer.IsTheory
 
 		} else {
 			_id := primitive.NewObjectID()
-			questionText := currentQuesPointer.Questions
+			questionText := currentQuesPointer.Question
 			marks := currentQuesPointer.Marks
 			optionsArray := make([]domain.QuestionOptions, 0)
 			topicsArray := make([]domain.QuestionTopics, 0)
@@ -95,7 +96,7 @@ func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain
 			}
 
 			singleQuestion.ID = _id
-			singleQuestion.Questions = questionText
+			singleQuestion.Question = questionText
 			singleQuestion.Marks = marks
 			singleQuestion.Options = optionsArray
 			singleQuestion.Topics = topicsArray
@@ -146,10 +147,11 @@ func (qsUC *questionUsecase) SaveTheoryQuestion(requestCtx context.Context, allM
 			metadataBson.Paper = currentQuesPointer.Paper
 			metadataBson.Username = username
 			metadataBson.Useremail = useremail
+			metadataBson.IsTheory = currentQuesPointer.IsTheory
 
 		} else {
 			_id := primitive.NewObjectID()
-			questionText := currentQuesPointer.Questions
+			questionText := currentQuesPointer.Question
 			marks := currentQuesPointer.Marks
 			answer := currentQuesPointer.Answer
 			topicsArray := make([]domain.QuestionTopics, 0)
@@ -215,7 +217,7 @@ func (qsUC *questionUsecase) AddSingleQuestion(requestCtx context.Context, singl
 	singleQuestion := new(domain.Question)
 	
 	_id := primitive.NewObjectID()
-	questionText := singleMCQ.Questions
+	questionText := singleMCQ.Question
 	marks := singleMCQ.Marks
 	optionsArray := make([]domain.QuestionOptions, 0)
 	topicsArray := make([]domain.QuestionTopics, 0)
@@ -260,7 +262,7 @@ func (qsUC *questionUsecase) AddSingleQuestion(requestCtx context.Context, singl
 	}
 
 	singleQuestion.ID = _id
-	singleQuestion.Questions = questionText
+	singleQuestion.Question = questionText
 	singleQuestion.Marks = marks
 	singleQuestion.Options = optionsArray
 	singleQuestion.Topics = topicsArray

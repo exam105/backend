@@ -4,7 +4,7 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Question struct {
 	ID        primitive.ObjectID `json:"id,omitempty" bson:"_id"`
-	Questions string             `json:"questions,omitempty" bson:"questions"`
+	Question  string             `json:"question,omitempty" bson:"question"`
 	Marks     string             `json:"marks,omitempty" bson:"marks"`
 	Options   []QuestionOptions  `json:"options,omitempty" bson:"options"`
 	Topics    []QuestionTopics   `json:"topics,omitempty" bson:"topics"`

@@ -13,11 +13,13 @@ type MCQModel []struct {
 	Paper     	string `json:"paper,omitempty" bson:"paper,omitempty"`
 	Year      	string `json:"year,omitempty" bson:"year,omitempty"`
 	Month     	string `json:"month,omitempty" bson:"month,omitempty"`
-	Questions 	string `json:"questions,omitempty" bson:"questions,omitempty"`
+	Question 	string `json:"question,omitempty" bson:"question,omitempty"`
 	Marks     	string `json:"marks,omitempty" bson:"marks,omitempty"`
 	Options   	option `json:"options,omitempty" bson:"options,omitempty"`
 	Topics    	topic  `json:"topics,omitempty" bson:"topics,omitempty"`
 	Images		image  `json:"images,omitempty" bson:"images,omitempty"`
+	IsTheory  bool   `json:"is_theory,omitempty" bson:"is_theory"`
+	
 }
 
 type TheoryModel []struct {
@@ -28,11 +30,13 @@ type TheoryModel []struct {
 	Paper     string `json:"paper,omitempty" bson:"paper,omitempty"`
 	Year      string `json:"year,omitempty" bson:"year,omitempty"`
 	Month     string `json:"month,omitempty" bson:"month,omitempty"`
-	Questions string `json:"questions,omitempty" bson:"questions,omitempty"`
+	Question string  `json:"question,omitempty" bson:"question,omitempty"`
 	Marks     string `json:"marks,omitempty" bson:"marks,omitempty"`
 	Answer    string `json:"answer,omitempty" bson:"answer"`
 	Topics    topic  `json:"topics,omitempty" bson:"topics,omitempty"`
 	Images    image  `json:"images,omitempty" bson:"images,omitempty"`
+	IsTheory  bool   `json:"is_theory,omitempty" bson:"is_theory"`
+
 }
 
 type option []struct {
