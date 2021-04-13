@@ -38,7 +38,7 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 	grp.POST("/metadata/:id", handler.UpdateMetadataByUser)
 	grp.DELETE("/metadata/:id", handler.DeleteMetadataByUser)
 
-	grp.GET("/questions/:id", handler.GetListOfMCQsByMetadataID)
+	grp.GET("/questions/:metaid", handler.GetListOfMCQsByMetadataID)
 	grp.GET("/question/:id", handler.GetQuestionByID)
 	grp.POST("/question/:id", handler.UpdateQuestionByID)
 	grp.PUT("/question/meta/:metaid", handler.AddQuestion)	
@@ -46,10 +46,13 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 
 	// Theory Questions
 	grp.POST("/questions/theory", handler.SaveTheoryQs)
+	grp.GET("/questions/theory/meta:id", handler.GetListOfMCQsByMetadataID)
 	grp.GET("/question/theory/:id", handler.GetTheoryQuestionByID)
 	grp.POST("/question/theory/:id", handler.UpdateTheoryQuestionByID)
 	grp.PUT("/question/theory/meta/:metaid", handler.AddTheoryQuestion)
+	grp.DELETE("/question/theory/:id/meta/:metaid", handler.DeleteQuestionByID)
 
+	//S3 Credentials
 	grp.GET("/question/s3credentials",handler.GetS3Credentials)
 }
 
@@ -149,7 +152,7 @@ func (qsHandler *QuestionHandler) GetListOfMCQsByMetadataID(echoCtx echo.Context
 
 	_, _ = restricted(echoCtx)
 
-	metadataID := echoCtx.Param("id")	
+	metadataID := echoCtx.Param("metaid")	
 	requestCtx := echoCtx.Request().Context()
 
 	allQuestion, err := qsHandler.QuestionUC.GetMCQsByMetadataID(requestCtx, metadataID)

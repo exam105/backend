@@ -7,8 +7,8 @@ type Question struct {
 	Questions string             `json:"questions,omitempty" bson:"questions"`
 	Marks     string             `json:"marks,omitempty" bson:"marks"`
 	Options   []QuestionOptions  `json:"options,omitempty" bson:"options"`
-	Topics    []QuestionTopics    `json:"topics,omitempty" bson:"topics"`
-	Images    []QuestionImages    `json:"images,omitempty" bson:"images"`
+	Topics    []QuestionTopics   `json:"topics,omitempty" bson:"topics"`
+	Images    []QuestionImages   `json:"images,omitempty" bson:"images"`
 }
 
 type QuestionOptions struct {
