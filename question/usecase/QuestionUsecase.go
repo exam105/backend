@@ -180,7 +180,7 @@ func (qsUC *questionUsecase) SaveTheoryQuestion(requestCtx context.Context, allM
 			}
 
 			singleQuestion.ID = _id
-			singleQuestion.Questions = questionText
+			singleQuestion.Question = questionText
 			singleQuestion.Marks = marks
 			singleQuestion.Answer = answer
 			singleQuestion.Topics = topicsArray
@@ -280,7 +280,7 @@ func (qsUC *questionUsecase) AddSingleTheoryQuestion(requestCtx context.Context,
 	singleQuestion := new(domain.TheoryQuestion)
 	
 	_id := primitive.NewObjectID()
-	questionText := singleMCQ.Questions
+	questionText := singleMCQ.Question
 	marks := singleMCQ.Marks
 	answer := singleMCQ.Answer
 	topicsArray := make([]domain.QuestionTopics, 0)
@@ -311,7 +311,7 @@ func (qsUC *questionUsecase) AddSingleTheoryQuestion(requestCtx context.Context,
 	}
 
 	singleQuestion.ID = _id
-	singleQuestion.Questions = questionText
+	singleQuestion.Question = questionText
 	singleQuestion.Marks = marks
 	singleQuestion.Answer = answer
 	singleQuestion.Topics = topicsArray
