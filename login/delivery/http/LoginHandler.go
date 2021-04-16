@@ -209,7 +209,7 @@ func generateTokenPair(username string, useremail string) (map[string]string) {
 	claims["email"] = useremail
 	claims["authorized"] = true
 	claims["admin"] = false
-	claims["exp"] = time.Now().Add(time.Minute * 40).Unix()
+	claims["exp"] = time.Now().Add(time.Minute * 5).Unix()
 
 	access_token, _ := token.SignedString([]byte(os.Getenv("ENV_ACCESS_TOKEN_SECRET")))
 	// if err != nil {

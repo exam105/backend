@@ -18,7 +18,7 @@ type MCQModel []struct {
 	Options   	option `json:"options,omitempty" bson:"options,omitempty"`
 	Topics    	topic  `json:"topics,omitempty" bson:"topics,omitempty"`
 	Images		image  `json:"images,omitempty" bson:"images,omitempty"`
-	IsTheory  bool   `json:"is_theory,omitempty" bson:"is_theory"`
+	IsTheory  	bool   `json:"is_theory,omitempty" bson:"is_theory"`
 	
 }
 
