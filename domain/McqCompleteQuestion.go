@@ -1,41 +1,40 @@
 package domain
 
 import (
+	"time"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"context"
 )
 
 type MCQModel []struct {
-	Subject   	string `json:"subject,omitempty" bson:"subject,omitempty"`
-	System    	string `json:"system,omitempty" bson:"system,omitempty"`
-	Board     	string `json:"board,omitempty" bson:"board,omitempty"`
-	Series    	string `json:"series,omitempty" bson:"series,omitempty"`
-	Paper     	string `json:"paper,omitempty" bson:"paper,omitempty"`
-	Year      	string `json:"year,omitempty" bson:"year,omitempty"`
-	Month     	string `json:"month,omitempty" bson:"month,omitempty"`
-	Question 	string `json:"question,omitempty" bson:"question,omitempty"`
-	Marks     	string `json:"marks,omitempty" bson:"marks,omitempty"`
-	Options   	option `json:"options,omitempty" bson:"options,omitempty"`
-	Topics    	topic  `json:"topics,omitempty" bson:"topics,omitempty"`
-	Images		image  `json:"images,omitempty" bson:"images,omitempty"`
-	IsTheory  	bool   `json:"is_theory,omitempty" bson:"is_theory"`
-	
+	Subject  string    `json:"subject,omitempty" bson:"subject,omitempty"`
+	System   string    `json:"system,omitempty" bson:"system,omitempty"`
+	Board    string    `json:"board,omitempty" bson:"board,omitempty"`
+	Series   string    `json:"series,omitempty" bson:"series,omitempty"`
+	Paper    string    `json:"paper,omitempty" bson:"paper,omitempty"`
+	Date     time.Time `json:"date,omitempty" bson:"date"`
+	Question string    `json:"question,omitempty" bson:"question,omitempty"`
+	Marks    string    `json:"marks,omitempty" bson:"marks,omitempty"`
+	Options  option    `json:"options,omitempty" bson:"options,omitempty"`
+	Topics   topic     `json:"topics,omitempty" bson:"topics,omitempty"`
+	Images   image     `json:"images,omitempty" bson:"images,omitempty"`
+	IsTheory bool      `json:"is_theory,omitempty" bson:"is_theory"`
+
 }
 
 type TheoryModel []struct {
-	Subject   string `json:"subject,omitempty" bson:"subject,omitempty"`
-	System    string `json:"system,omitempty" bson:"system,omitempty"`
-	Board     string `json:"board,omitempty" bson:"board,omitempty"`
-	Series    string `json:"series,omitempty" bson:"series,omitempty"`
-	Paper     string `json:"paper,omitempty" bson:"paper,omitempty"`
-	Year      string `json:"year,omitempty" bson:"year,omitempty"`
-	Month     string `json:"month,omitempty" bson:"month,omitempty"`
+	Subject  string    `json:"subject,omitempty" bson:"subject,omitempty"`
+	System   string    `json:"system,omitempty" bson:"system,omitempty"`
+	Board    string    `json:"board,omitempty" bson:"board,omitempty"`
+	Series   string    `json:"series,omitempty" bson:"series,omitempty"`
+	Paper    string    `json:"paper,omitempty" bson:"paper,omitempty"`
+	Date     time.Time `json:"date,omitempty" bson:"date"`
 	Question string  `json:"question,omitempty" bson:"question,omitempty"`
-	Marks     string `json:"marks,omitempty" bson:"marks,omitempty"`
-	Answer    string `json:"answer,omitempty" bson:"answer"`
-	Topics    topic  `json:"topics,omitempty" bson:"topics,omitempty"`
-	Images    image  `json:"images,omitempty" bson:"images,omitempty"`
-	IsTheory  bool   `json:"is_theory,omitempty" bson:"is_theory"`
+	Marks    string    `json:"marks,omitempty" bson:"marks,omitempty"`
+	Answer   string    `json:"answer,omitempty" bson:"answer"`
+	Topics   topic     `json:"topics,omitempty" bson:"topics,omitempty"`
+	Images   image     `json:"images,omitempty" bson:"images,omitempty"`
+	IsTheory bool      `json:"is_theory,omitempty" bson:"is_theory"`
 
 }
 

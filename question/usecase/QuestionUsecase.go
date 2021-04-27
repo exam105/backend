@@ -41,8 +41,7 @@ func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain
 			metadataBson.System = currentQuesPointer.System
 			metadataBson.Board = currentQuesPointer.Board
 			metadataBson.Subject = currentQuesPointer.Subject
-			metadataBson.Year = currentQuesPointer.Year
-			metadataBson.Month = currentQuesPointer.Month
+			metadataBson.Date = currentQuesPointer.Date
 			metadataBson.Series = currentQuesPointer.Series
 			metadataBson.Paper = currentQuesPointer.Paper
 			metadataBson.Username = username
@@ -141,8 +140,7 @@ func (qsUC *questionUsecase) SaveTheoryQuestion(requestCtx context.Context, allM
 			metadataBson.System = currentQuesPointer.System
 			metadataBson.Board = currentQuesPointer.Board
 			metadataBson.Subject = currentQuesPointer.Subject
-			metadataBson.Year = currentQuesPointer.Year
-			metadataBson.Month = currentQuesPointer.Month
+			metadataBson.Date = currentQuesPointer.Date
 			metadataBson.Series = currentQuesPointer.Series
 			metadataBson.Paper = currentQuesPointer.Paper
 			metadataBson.Username = username
@@ -151,7 +149,7 @@ func (qsUC *questionUsecase) SaveTheoryQuestion(requestCtx context.Context, allM
 
 		} else {
 			_id := primitive.NewObjectID()
-			questionText := currentQuesPointer.Question
+			questionText := currentQuesPointer. Question
 			marks := currentQuesPointer.Marks
 			answer := currentQuesPointer.Answer
 			topicsArray := make([]domain.QuestionTopics, 0)
