@@ -26,7 +26,8 @@
     "emptyMetadata": "Metadata collection is empty",
     "mappingFailure": "Couldn't map data to object",
     "bulkwriteFailed": "BulkWrite operation failed",
-    "loginFailed":"Login failed sue to invalied credential. Please check your username and passowrd."
+    "loginFailed":"Login failed sue to invalied credential. Please check your username and passowrd.",
+    "searchFailed":"Problem with searching the desired result. The cause of this could be corrupt/missing data."
   },
   "successMessages":{
     "documentFound": "Document found."

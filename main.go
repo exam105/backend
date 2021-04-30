@@ -8,13 +8,17 @@ import (
 	"log"
 	"time"
 
+	_searchHandler "github.com/exam105-UPD/backend/search/delivery/http"
+	_searchUseCase "github.com/exam105-UPD/backend/search/usecase"
+	_searchRepo "github.com/exam105-UPD/backend/search/repository"
+
 	_loginHandler "github.com/exam105-UPD/backend/login/delivery/http"
-	_loginRepo "github.com/exam105-UPD/backend/login/repository"
 	_loginUseCase "github.com/exam105-UPD/backend/login/usecase"
+	_loginRepo "github.com/exam105-UPD/backend/login/repository"
 
 	_questionHandler "github.com/exam105-UPD/backend/question/delivery/http"
-	_questionRepo "github.com/exam105-UPD/backend/question/repository"
 	_questionUseCase "github.com/exam105-UPD/backend/question/usecase"
+	_questionRepo "github.com/exam105-UPD/backend/question/repository"
 
 	_middleware "github.com/exam105-UPD/backend/middleware"
 	_ "github.com/go-sql-driver/mysql"
@@ -71,6 +75,7 @@ func main() {
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: "method=${method}, uri=${uri}, status=${status}, remote_ip:${remote_ip}, host:${host} \n",
 	}))
+
 	// **** Article wiring ****
 
 	/* 	authorRepo := _authorRepo.NewMysqlAuthorRepository(dbConn)
@@ -96,7 +101,14 @@ func main() {
 	loginUC := _loginUseCase.NewLoginUsecase(loginRepo, timeoutContext)
 	_loginHandler.NewLoginHandler(e, loginUC)
 
-	log.Fatal(e.Start(viper.GetString("server.address")))
+	//**********Search Wiring**************
+
+	//timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
+	searchRepo := _searchRepo.NewSearchRepository(dbConn) 
+	searchUC := _searchUseCase.NewSearchUsecase(searchRepo, timeoutContext)
+	_searchHandler.NewSearchHandler(e, searchUC)
+
+	log.Println(e.Start(viper.GetString("server.address")))
 }
 
 func initializeMongoDatabase(ctx context.Context) *mongo.Client {
@@ -139,23 +151,3 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 
 }
 
-/* func initializeLogger() *logrus.Logger {
-		var filename string = "/var/log/exam105.log"
-
-	   	// Create the log file if doesn't exist. And append to it if it already exists.
-	   	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
-	   	Formatter := new(logrus.TextFormatter)
-	   	// You can change the Timestamp format. But you have to use the same date and time.
-	   	// "2006-02-02 15:04:06" Works. If you change any digit, it won't work
-	   	// ie "Mon Jan 2 15:04:05 MST 2006" is the reference time. You can't change it
-	   	Formatter.TimestampFormat = "02-01-2006 15:04:05"
-	   	Formatter.FullTimestamp = true
-	   	logrus.SetFormatter(Formatter)
-
-	   	if err != nil {
-	   		// Cannot open log file. Logging to stderr
-	   		fmt.Println(err)
-	   	} else {
-	   		logrus.SetOutput(file)
-	   	}
-} */

@@ -29,7 +29,7 @@ type TheoryModel []struct {
 	Series   string    `json:"series,omitempty" bson:"series,omitempty"`
 	Paper    string    `json:"paper,omitempty" bson:"paper,omitempty"`
 	Date     time.Time `json:"date,omitempty" bson:"date"`
-	Question string  `json:"question,omitempty" bson:"question,omitempty"`
+	Question string    `json:"question,omitempty" bson:"question,omitempty"`
 	Marks    string    `json:"marks,omitempty" bson:"marks,omitempty"`
 	Answer   string    `json:"answer,omitempty" bson:"answer"`
 	Topics   topic     `json:"topics,omitempty" bson:"topics,omitempty"`

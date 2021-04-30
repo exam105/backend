@@ -239,7 +239,6 @@ func (qsHandler *QuestionHandler) UpdateTheoryQuestionByID(echoCtx echo.Context)
 	return echoCtx.JSON(http.StatusOK, questionResult)
 }
 
-
 func (qsHandler *QuestionHandler) DeleteQuestionByID(echoCtx echo.Context) (error) {
 
 	_, _ = restricted(echoCtx)
