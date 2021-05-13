@@ -125,6 +125,7 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 		mongoURL = os.ExpandEnv("mongodb://${ENV_REPLICA_USER}:${ENV_REPLICA_PASS}@${ENV_REPLICA_HOST_1}:27017,${ENV_REPLICA_HOST_2}:27017,${ENV_REPLICA_HOST_3}:27017/${ENV_REPLICA_DB}?replicaSet=${ENV_REPLICA_SET_NAME}&authSource=admin&w=majority")
 	}
 
+	log.Println("Environment: " + os.Getenv("ENV_EXAM105"))
 	log.Println("Env User: " + os.Getenv("ENV_MONGO_USER"))
 	log.Println("S3 User: " + os.Getenv("ENV_S3_USERNAME"))
 	log.Println("Replica Set Name: " + os.Getenv("ENV_REPLICA_SET_NAME"))
