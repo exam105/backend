@@ -7,7 +7,6 @@ import (
 	// "github.com/labstack/echo/middleware"
 	"github.com/labstack/echo"
 	"github.com/exam105-UPD/backend/domain"
-	"github.com/dgrijalva/jwt-go"
 )
 
 // ResponseError represent the reseponse error struct
@@ -32,6 +31,7 @@ func NewSearchHandler(e *echo.Echo, searchUseCase domain.SearchUsecase) {
 	// grp.Use(middleware.JWT([]byte(os.Getenv("ENV_ACCESS_TOKEN_SECRET")))) // The string "secret" should be accessed from data entry. For details, https://echo.labstack.com/cookbook/jwt
 
 	grp.POST("/search/date", handler.SearchBySingleDate)
+	grp.POST("/search/daterange", handler.SearchByDateRange)
 }
 
 func (searchHandler *SearchHandler) SearchBySingleDate(echoCtx echo.Context) (error) {
@@ -53,13 +53,23 @@ func (searchHandler *SearchHandler) SearchBySingleDate(echoCtx echo.Context) (er
 
 }
 
-func restricted(c echo.Context) (string, string) {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	email := claims["email"].(string)
+func (searchHandler *SearchHandler) SearchByDateRange(echoCtx echo.Context) (error) {
 
-	return name, email
+	// username, _ := restricted(echoCtx)
+	var searchParameters domain.SearchParameterByDateRange
+	err := echoCtx.Bind(&searchParameters)
+	if err != nil {
+		return echoCtx.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	requestCtx := echoCtx.Request().Context()
+	result, err := searchHandler.SearchUC.SearchByDateRange(requestCtx, &searchParameters) 
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+
+	return echoCtx.JSON(http.StatusOK, result)
+
 }
 
 func getStatusCode(err error) int {

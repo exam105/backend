@@ -26,3 +26,11 @@ func (searchUC *searchUsecase) SearchByDate(requestCtx context.Context, searchCr
 
 	return searchUC.searchRepo.SearchByDate(ctx, searchCriteria) 
 }
+
+func (searchUC *searchUsecase) SearchByDateRange(requestCtx context.Context, searchCriteria *domain.SearchParameterByDateRange) ([]domain.SearchResult_Paper, error){
+
+	ctx, cancel := context.WithTimeout(requestCtx, searchUC.contextTimeout)
+	defer cancel()
+
+	return searchUC.searchRepo.SearchByDateRange(ctx, searchCriteria) 
+}

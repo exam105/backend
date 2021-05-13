@@ -26,9 +26,9 @@ func (db *searchRepo) SearchByDate(ctx context.Context, searchCriteria *domain.S
 	cursor, err := metadataCollection.Find(
 		ctx,
 		bson.D{
-			{"subject", searchCriteria.Subject},
-			{"date", searchCriteria.Date},
+			{"subject", searchCriteria.Subject},			
 			{"system", searchCriteria.System},
+			{"date", searchCriteria.Date},
 		})
 	if err != nil {
 		log.Println( logging.MSG_SearchFailed, err.Error())
@@ -44,6 +44,39 @@ func (db *searchRepo) SearchByDate(ctx context.Context, searchCriteria *domain.S
 	}
 	
 	// fmt.Printf("Search Result -->> \n %s", paperList)
+	
+	return paperList, nil	
+}
+
+func (db *searchRepo) SearchByDateRange(ctx context.Context, searchCriteria *domain.SearchParameterByDateRange) ([]domain.SearchResult_Paper, error){
+
+	fromDate := searchCriteria.FromDate
+	toDate := searchCriteria.ToDate
+
+	database := db.Conn.Database("exam105")
+	metadataCollection := database.Collection("metadata")
+	cursor, err := metadataCollection.Find(
+		ctx,
+		bson.D{
+			{"subject", searchCriteria.Subject},
+			{"system", searchCriteria.System},
+			{"date", bson.D{{"$gte", fromDate}, {"$lt", toDate}} },
+		})
+	
+	if err != nil {
+		log.Println( logging.MSG_SearchFailed, err)
+		return []domain.SearchResult_Paper{}, fmt.Errorf(logging.MSG_SearchFailed + err.Error(), nil)
+	}
+
+	defer cursor.Close(ctx)
+	var paperList []domain.SearchResult_Paper
+	for cursor.Next(ctx) {
+		var paper domain.SearchResult_Paper
+		cursor.Decode(&paper)
+		paperList = append(paperList, paper)
+	}
+	
+	fmt.Printf("Search Result -->> \n %s", paperList)
 	
 	return paperList, nil	
 }

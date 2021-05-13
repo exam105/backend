@@ -27,7 +27,7 @@
     "mappingFailure": "Couldn't map data to object",
     "bulkwriteFailed": "BulkWrite operation failed",
     "loginFailed":"Login failed sue to invalied credential. Please check your username and passowrd.",
-    "searchFailed":"Problem with searching the desired result. The cause of this could be corrupt/missing data."
+    "searchFailed":"Problem with searching. The cause of this could be corrupt/missing data OR internet connection."
   },
   "successMessages":{
     "documentFound": "Document found."
