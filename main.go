@@ -138,17 +138,16 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	client, err := mongo.Connect(ctx, clientOptions)
 
 	if err != nil {
-		panic("Couldn't Connect to ReplicaSet")
 		log.Fatal(err)
-		
+		panic("Couldn't Connect to ReplicaSet")
 	}
 
 	// Check the connection
 	err = client.Ping(ctx, nil)
 
 	if err != nil {
-		panic("Database Replication PING Issue *** "+ err.Error())
-		log.Fatal("Couldn't PING to the database \n", err.Error())		
+		log.Fatal("Couldn't PING to the database \n", err.Error())
+		panic("Database Replication PING Issue *** "+ err.Error())		
 		//fmt.Errorf(err)
 	} else {
 		fmt.Println(" New MongoDB Replica Set connection created ! ")
