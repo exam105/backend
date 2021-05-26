@@ -122,7 +122,7 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	} else if env == "DEV" {
 		mongoURL = os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@mongodb:27017/?authSource=${ENV_MONGO_AUTH_DB}") // DEV
 	} else if env == "PROD" {
-		mongoURL = os.ExpandEnv("mongodb://${ENV_REPLICA_USER}:${ENV_REPLICA_PASS}@${ENV_REPLICA_HOST_1}:27017,${ENV_REPLICA_HOST_2}:27017,${ENV_REPLICA_HOST_3}:27017/${ENV_REPLICA_DB}?replicaSet=${ENV_REPLICA_SET_NAME}&authSource=admin&w=majority")
+		mongoURL = os.ExpandEnv("mongodb://${ENV_REPLICA_USER}:${ENV_REPLICA_PASS}@${ENV_REPLICA_HOST_1}:27017,${ENV_REPLICA_HOST_2}:27017,${ENV_REPLICA_HOST_3}:27017/${ENV_REPLICA_DB}?replicaSet=${ENV_REPLICA_SET_NAME}&authSource=admin")
 	}
 
 	log.Println("Environment: " + os.Getenv("ENV_EXAM105"))
@@ -138,7 +138,8 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	client, err := mongo.Connect(ctx, clientOptions)
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Errorf("Connection Failed:-> %v ", err.Error())
+		log.Fatal(err.Error())
 		panic("Couldn't Connect to ReplicaSet")
 	}
 
@@ -146,9 +147,10 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	err = client.Ping(ctx, nil)
 
 	if err != nil {
+		fmt.Errorf("Ping Problem:-> %v ", err.Error())
 		log.Fatal("Couldn't PING to the database \n", err.Error())
-		panic("Database Replication PING Issue *** "+ err.Error())		
-		//fmt.Errorf(err)
+		panic("Database Replication PING Issue *** "+ err.Error())	
+		
 	} else {
 		fmt.Println(" New MongoDB Replica Set connection created ! ")
 	}
