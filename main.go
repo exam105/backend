@@ -138,7 +138,6 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	client, err := mongo.Connect(ctx, clientOptions)
 
 	if err != nil {
-		fmt.Errorf("Connection Failed:-> %v ", err.Error())
 		log.Fatal(err.Error())
 		panic("Couldn't Connect to ReplicaSet")
 	}
@@ -147,7 +146,6 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	err = client.Ping(ctx, nil)
 
 	if err != nil {
-		fmt.Errorf("Ping Problem:-> %v ", err.Error())
 		log.Fatal("Couldn't PING to the database \n", err.Error())
 		panic("Database Replication PING Issue *** "+ err.Error())	
 		
