@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"github.com/exam105-UPD/backend/logging"
 	"os"
 	"context"
@@ -122,14 +123,15 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	} else if env == "DEV" {
 		mongoURL = os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@mongodb:27017/?authSource=${ENV_MONGO_AUTH_DB}") // DEV
 	} else if env == "PROD" {
-		//mongoURL = os.ExpandEnv("mongodb://${ENV_REPLICA_USER}:${ENV_REPLICA_PASS}@${ENV_REPLICA_HOST_1}:27017,${ENV_REPLICA_HOST_2}:27017,${ENV_REPLICA_HOST_3}:27017/${ENV_REPLICA_DB}?replicaSet=${ENV_REPLICA_SET_NAME}&authSource=admin")
-		mongoURL = os.ExpandEnv("mongodb://${ENV_REPLICA_USER}:${ENV_REPLICA_PASS}@prod-node1:27017,prod-node2:27017,prod-node3:27017/${ENV_REPLICA_DB}?replicaSet=${ENV_REPLICA_SET_NAME}&authSource=admin")
+		mongoURL = os.ExpandEnv("mongodb://${ENV_REPLICA_USER}:${ENV_REPLICA_PASS}@${ENV_REPLICA_HOST_1}:27017,${ENV_REPLICA_HOST_2}:27017,${ENV_REPLICA_HOST_3}:27017/${ENV_REPLICA_DB}?replicaSet=${ENV_REPLICA_SET_NAME}&authSource=admin")
+		//mongoURL = os.ExpandEnv("mongodb://${ENV_REPLICA_USER}:${ENV_REPLICA_PASS}@prod-node1:27017,prod-node2:27017,prod-node3:27017/${ENV_REPLICA_DB}?replicaSet=${ENV_REPLICA_SET_NAME}&authSource=admin")
 	}
 
 	log.Println("Environment: " + os.Getenv("ENV_EXAM105"))
 	log.Println("Env User: " + os.Getenv("ENV_MONGO_USER"))
 	log.Println("S3 User: " + os.Getenv("ENV_S3_USERNAME"))
 	log.Println("Replica Set Name: " + os.Getenv("ENV_REPLICA_SET_NAME"))
+	log.Println("Replica Set PWD: " + os.Getenv("ENV_REPLICA_PASS"))
 	
 	clientOptions := options.Client().ApplyURI(mongoURL)
 	clientOptions = clientOptions.SetMaxPoolSize(100) //100 is default driver setting
@@ -147,7 +149,7 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	err = client.Ping(ctx, nil)
 
 	if err != nil {
-		//log.Fatal("Couldn't PING to the database \n", err.Error())
+		//log.Fatal("Couldn't PING to the database \n", err.Error())		
 		panic("Database Replication PING Issue *** "+ err.Error())	
 		
 	} else {
