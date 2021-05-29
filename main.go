@@ -123,13 +123,14 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 		mongoURL = os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@mongodb:27017/?authSource=${ENV_MONGO_AUTH_DB}") // DEV
 	} else if env == "PROD" {
 		//mongoURL = os.ExpandEnv("mongodb://${ENV_REPLICA_USER}:${ENV_REPLICA_PASS}@${ENV_REPLICA_HOST_1}:27017,${ENV_REPLICA_HOST_2}:27017,${ENV_REPLICA_HOST_3}:27017/${ENV_REPLICA_DB}?replicaSet=${ENV_REPLICA_SET_NAME}&authSource=admin")
-		mongoURL = os.ExpandEnv("mongodb://${ENV_REPLICA_USER}:${ENV_REPLICA_PASS}@13.232.181.230:27017,35.154.149.247:27017,52.66.229.131:27017/${ENV_REPLICA_DB}?replicaSet=${ENV_REPLICA_SET_NAME}&authSource=admin")
+		mongoURL = os.ExpandEnv("mongodb://${ENV_REPLICA_USER}:${ENV_REPLICA_PASS}@${ENV_REPLICA_PUBLIC_HOST_1}:27017,${ENV_REPLICA_PUBLIC_HOST_2}:27017,${ENV_REPLICA_PUBLIC_HOST_3}:27017/${ENV_REPLICA_DB}?replicaSet=${ENV_REPLICA_SET_NAME}&authSource=admin")
 	}
 
 	log.Println("Environment: " + os.Getenv("ENV_EXAM105"))
 	log.Println("Env User: " + os.Getenv("ENV_MONGO_USER"))
 	log.Println("S3 User: " + os.Getenv("ENV_S3_USERNAME"))
 	log.Println("Replica Set Name: " + os.Getenv("ENV_REPLICA_SET_NAME"))
+	log.Println("Replica Public IP: " + os.Getenv("ENV_REPLICA_PUBLIC_HOST_1"))
 	
 	clientOptions := options.Client().ApplyURI(mongoURL)
 	clientOptions = clientOptions.SetMaxPoolSize(100) //100 is default driver setting
