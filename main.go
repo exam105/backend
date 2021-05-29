@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"github.com/exam105-UPD/backend/logging"
 	"os"
 	"context"
