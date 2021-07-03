@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/exam105-UPD/backend/logging"
 	"os"
 	"context"
@@ -143,16 +144,16 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 		panic("Couldn't Connect to ReplicaSet")
 	}
 
-	// Check the connection
-	//err = client.Ping(ctx, nil)
+	//Check the connection
+	err = client.Ping(ctx, nil)
 
-	// if err != nil {
-	// 	//log.Fatal("Couldn't PING to the database \n", err.Error())		
-	// 	panic("Database Replication PING Issue *** "+ err.Error())	
+	if err != nil {
+		//log.Fatal("Couldn't PING to the database \n", err.Error())		
+		panic("Database Replication PING Issue *** "+ err.Error())	
 		
-	// } else {
-	// 	fmt.Println(" New MongoDB Replica Set connection created ! ")
-	// }
+	} else {
+		fmt.Println(" New MongoDB Replica Set connection created ! ")
+	}
 
 	MongoConnClient = client
 	return MongoConnClient
