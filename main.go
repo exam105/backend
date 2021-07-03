@@ -4,7 +4,6 @@ import (
 	"github.com/exam105-UPD/backend/logging"
 	"os"
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -121,7 +120,7 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 		mongoURL = os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@54.255.95.50:27017/?authSource=${ENV_MONGO_AUTH_DB}") // Local
 	} else if env == "DEV" {
 		mongoURL = os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@mongodb:27017/?authSource=${ENV_MONGO_AUTH_DB}") // DEV
-	} else if env == "PRO" {
+	} else if env == "PROD" {
 		mongoURL = os.ExpandEnv("mongodb://${ENV_REPLICA_USER}:${ENV_REPLICA_PASS}@${ENV_REPLICA_HOST_1}:27017,${ENV_REPLICA_HOST_2}:27017,${ENV_REPLICA_HOST_3}:27017/${ENV_REPLICA_DB}?replicaSet=${ENV_REPLICA_SET_NAME}&authSource=admin")
 		//mongoURL = os.ExpandEnv("mongodb://${ENV_REPLICA_USER}:${ENV_REPLICA_PASS}@${ENV_REPLICA_PUBLIC_HOST_1}:27017,${ENV_REPLICA_PUBLIC_HOST_2}:27017,${ENV_REPLICA_PUBLIC_HOST_3}:27017/${ENV_REPLICA_DB}?replicaSet=${ENV_REPLICA_SET_NAME}&authSource=admin")
 	}
@@ -145,15 +144,15 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	}
 
 	// Check the connection
-	err = client.Ping(ctx, nil)
+	//err = client.Ping(ctx, nil)
 
-	if err != nil {
-		//log.Fatal("Couldn't PING to the database \n", err.Error())		
-		panic("Database Replication PING Issue *** "+ err.Error())	
+	// if err != nil {
+	// 	//log.Fatal("Couldn't PING to the database \n", err.Error())		
+	// 	panic("Database Replication PING Issue *** "+ err.Error())	
 		
-	} else {
-		fmt.Println(" New MongoDB Replica Set connection created ! ")
-	}
+	// } else {
+	// 	fmt.Println(" New MongoDB Replica Set connection created ! ")
+	// }
 
 	MongoConnClient = client
 	return MongoConnClient
