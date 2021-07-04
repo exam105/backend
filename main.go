@@ -152,15 +152,15 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	time.Sleep(10 * time.Second)
 
 	//Check the connection
-	err = client.Ping(ctx, nil)
+	// err = client.Ping(ctx, nil)
 
-	if err != nil {
-		//log.Fatal("Couldn't PING to the database \n", err.Error())		
-		panic("Database Replication PING Issue *** "+ err.Error())	
+	// if err != nil {
+	// 	//log.Fatal("Couldn't PING to the database \n", err.Error())		
+	// 	panic("Database Replication PING Issue *** "+ err.Error())	
 		
-	} else {
-		fmt.Println(" New MongoDB Replica Set connection created ! ")
-	}
+	// } else {
+	// 	fmt.Println(" New MongoDB Replica Set connection created ! ")
+	// }
 
 	MongoConnClient = client
 	return MongoConnClient
