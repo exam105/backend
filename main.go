@@ -131,7 +131,10 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	log.Println("S3 User: " + os.Getenv("ENV_S3_USERNAME"))
 	log.Println("Replica Set Name: " + os.Getenv("ENV_REPLICA_SET_NAME"))
 	log.Println("Replica Public IP: " + os.Getenv("ENV_REPLICA_PUBLIC_HOST_1"))
-	
+	log.Println("Replica Prive IP - 1: " + os.Getenv("ENV_REPLICA_HOST_1"))
+	log.Println("Replica Prive IP - 2: " + os.Getenv("ENV_REPLICA_HOST_2"))
+	log.Println("Replica Prive IP - 3: " + os.Getenv("ENV_REPLICA_HOST_3"))
+
 	clientOptions := options.Client().ApplyURI(mongoURL)
 	clientOptions = clientOptions.SetMaxPoolSize(100) //100 is default driver setting
 	log.Println("Connection String: " + clientOptions.GetURI())
@@ -142,6 +145,8 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	if err != nil {
 		//log.Fatal(err.Error())
 		panic("Couldn't Connect to ReplicaSet")
+	} else {
+		fmt.Println("Connected to MongoDB Replica Set. ")
 	}
 
 	//Check the connection
