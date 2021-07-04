@@ -146,8 +146,10 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 		//log.Fatal(err.Error())
 		panic("Couldn't Connect to ReplicaSet")
 	} else {
-		fmt.Println("Connected to MongoDB Replica Set. ")
+		fmt.Println("Connected to MongoDB Replica Set. Sleepping for 10sec")
 	}
+
+	time.Sleep(10 * time.Second)
 
 	//Check the connection
 	err = client.Ping(ctx, nil)
