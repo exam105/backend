@@ -56,7 +56,7 @@ func main() {
 	   	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
 		dbConn, err := sql.Open(`mysql`, dsn) */
 
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	dbConn := initializeMongoDatabase(ctx)
@@ -146,21 +146,19 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 		//log.Fatal(err.Error())
 		panic("Couldn't Connect to ReplicaSet")
 	} else {
-		fmt.Println("Connected to MongoDB Replica Set. Sleepping for 10sec")
+		fmt.Println("Connected to MongoDB Replica Set")
 	}
 
-	time.Sleep(10 * time.Second)
-
 	//Check the connection
-	// err = client.Ping(ctx, nil)
+	err = client.Ping(ctx, nil)
 
-	// if err != nil {
-	// 	//log.Fatal("Couldn't PING to the database \n", err.Error())		
-	// 	panic("Database Replication PING Issue *** "+ err.Error())	
+	if err != nil {
+		//log.Fatal("Couldn't PING to the database \n", err.Error())		
+		panic("Database Replication PING Issue *** "+ err.Error())	
 		
-	// } else {
-	// 	fmt.Println(" New MongoDB Replica Set connection created ! ")
-	// }
+	} else {
+		fmt.Println(" New MongoDB Replica Set connection created ! ")
+	}
 
 	MongoConnClient = client
 	return MongoConnClient
