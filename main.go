@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"fmt"
 	"github.com/exam105-UPD/backend/logging"
 	"os"
@@ -20,7 +21,6 @@ import (
 	_questionUseCase "github.com/exam105-UPD/backend/question/usecase"
 	_questionRepo "github.com/exam105-UPD/backend/question/repository"
 
-	_middleware "github.com/exam105-UPD/backend/middleware"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -70,8 +70,14 @@ func main() {
 	}()
 
 	e := echo.New()
-	middL := _middleware.InitMiddleware()
-	e.Use(middL.CORS)
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
+	  }))
+	
+	//middL := _middleware.InitMiddleware()
+	//e.Use(middL.CORS)
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: "method=${method}, uri=${uri}, status=${status}, remote_ip:${remote_ip}, host:${host} \n",
 	}))
