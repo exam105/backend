@@ -209,7 +209,7 @@ func generateTokenPair(username string, useremail string) (map[string]string) {
 	claims["email"] = useremail
 	claims["authorized"] = true
 	claims["admin"] = false
-	claims["exp"] = time.Now().Add(time.Minute * 5).Unix()
+	claims["exp"] = time.Now().Add(time.Minute * 60).Unix()
 
 	access_token, _ := token.SignedString([]byte(os.Getenv("ENV_ACCESS_TOKEN_SECRET")))
 	// if err != nil {
@@ -223,7 +223,7 @@ func generateTokenPair(username string, useremail string) (map[string]string) {
 	rtClaims["email"] = useremail
 	rtClaims["app"] = "exam105"
 	rtClaims["authorized"] = true
-	rtClaims["exp"] = time.Now().Add(time.Minute * 10).Unix()
+	rtClaims["exp"] = time.Now().Add(time.Hour * 3).Unix()
 
 	refresh_token, _ := refreshToken.SignedString([]byte(os.Getenv("ENV_REFRESH_TOKEN_SECRET")))
 	// if err != nil {
