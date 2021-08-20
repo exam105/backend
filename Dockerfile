@@ -1,4 +1,4 @@
-FROM golang:1.13.8 AS builderStep
+FROM golang:1.16.5 AS builderStep
 
 LABEL author="Muhammad Tariq"
 
