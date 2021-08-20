@@ -4,7 +4,7 @@ import (
 	"os"
 	"net/http"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/exam105-UPD/backend/domain"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
