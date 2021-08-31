@@ -1,6 +1,6 @@
 module github.com/exam105-UPD/backend
 
-go 1.13
+go 1.16
 
 require (
 	github.com/bxcodec/faker v2.0.1+incompatible // indirect
