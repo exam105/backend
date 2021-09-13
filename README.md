@@ -57,13 +57,13 @@ Services: exam105_nginx (load balancer), exam105_backend, exam105_frontend
 ### Performance:
    We performed the load testing of our web application using (JMETER ICON)JMeter. JMeter is an Apache project that can be used as a load testing tool for analyzing and measuring the performance of web applications.
 #### Testing parameters:
-##### Number of Threads (users): 
-   The number of users that JMeter would attempt to simulate were set to 1000.
-##### Ramp-Up Period (in seconds): 
-   The duration of time that JMeter would distribute the start of the threads over was set to 10 seconds.
-##### Loop Count: 
-   The number of times to execute the test was set to 1.
+   Number of Threads (users): The number of users that JMeter would attempt to simulate were set to 1000.
+   Ramp-Up Period (in seconds): The duration of time that JMeter would distribute the start of the threads over was set to 10 seconds.
+   Loop Count: The number of times to execute the test was set to 1.
+   
 ### Results:
 The results are shown in the screenshots below (these are some results, not all as we could not capture all due to the large number of data). According to the **View Results in Table** output, the **Status** of all the requests was “Success” (indicated by a green shield with a tick in it); the range of both the **Sample Time** and **Latency** was 179-2601 ms.
-![Screenshot (13)](https://user-images.githubusercontent.com/52341921/133089654-cca7ee86-d15d-40f1-ba94-d561731f6a6a.png)
-![Screenshot (12)](https://user-images.githubusercontent.com/52341921/133089664-e4f7b2d8-0a63-4442-b22b-1e6874467d9d.png)
+
+![Screenshot (13)](https://user-images.githubusercontent.com/52341921/133097602-54cac6e5-25a0-47c8-ad2d-203b024d9992.png)
+
+![Screenshot (12)](https://user-images.githubusercontent.com/52341921/133097645-c3265c7d-d3e3-4594-ac87-8bdb6212855d.png)
