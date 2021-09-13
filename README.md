@@ -18,7 +18,7 @@ Now we describe about the system architecture of Exam105.com as a whole. The sys
 
 ![exam105_system_architecture](https://user-images.githubusercontent.com/52341921/133076841-609da4af-87bc-4bef-9867-489850b5ea88.png)
 
-The technologies that our system uses are listed downn below.
+The technologies that our system uses are listed down below.
 ### 1. EC2 Instances: 
    Amazon Elastic Compute Cloud (Amazon EC2) provides scalable computing capacity in the Amazon Web Services (AWS) Cloud. Using Amazon EC2 eliminates the need to invest in hardware up front, so we can develop and deploy applications faster. Thus, we have used Amazon EC2 to launch three virtual servers. It allows us to configure security and networking, and manage storage.
 ### 2. VPC (Virtual Private Cloud):
