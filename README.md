@@ -6,7 +6,10 @@ Exam105.com is a platform where the students and teachers will be able to get, s
 
 ---
 
-This is the backend application of Exam105. It uses Go as the primary language. This application uses Eco framework, and it is coded using the clean architecture. The application uses docker to containerize and deploy using ansible. Below is the diagram of clean archiecture that is implemented in this application: 
+This is the backend application of Exam105. It uses Golang as the primary language. This application uses Eco framework, and it is coded using the clean architecture. The application uses docker to containerize and deploy using ansible. 
+
+### Clean Architecture:
+This application follows the clean architecture approach. Clean architecture helps get rid of many constraints. The architecture does not depend on the existence of some library or framework. It is easily testable; the business rules can be tested without depending upon the UI, Database, Web Server, or any other external element. The business rules are not bound to the database, that means we can swap out Oracle or SQL Server, for Mongo, BigTable, CouchDB, or any other database. Below is the diagram of clean archiecture that is implemented in this application: 
 
 ![app_arch-layers_clean_architecture-f](https://user-images.githubusercontent.com/52341921/133074347-7c684f18-8298-4e0c-b381-54f264d7df9c.png)
 
