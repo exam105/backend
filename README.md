@@ -11,7 +11,9 @@ This is the backend application of Exam105. It uses Golang as the primary langua
 ### Clean Architecture:
 This application follows the clean architecture approach. Clean architecture helps get rid of many constraints. The architecture does not depend on the existence of some library or framework. It is easily testable; the business rules can be tested without depending upon the UI, Database, Web Server, or any other external element. The business rules are not bound to the database, that means we can swap out Oracle or SQL Server, for Mongo, BigTable, CouchDB, or any other database. Below is the diagram of clean archiecture that is implemented in this application: 
 
-![app_arch-layers_clean_architecture-f](https://user-images.githubusercontent.com/52341921/133074347-7c684f18-8298-4e0c-b381-54f264d7df9c.png)
+![CleanArchitecture](https://user-images.githubusercontent.com/52341921/133215704-d766651e-7e58-4235-80dd-6293ae09c115.jpg) 
+
+*Credit: [Uncle Bob](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)* 
 
 
 ---
