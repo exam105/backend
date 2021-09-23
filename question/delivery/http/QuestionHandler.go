@@ -54,6 +54,9 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 
 	//S3 Credentials
 	grp.GET("/question/s3credentials",handler.GetS3Credentials)
+
+	grp2 := e.Group("exam")
+	grp2.GET("/question/:id", handler.GetQuestionByID_NoAuth)	
 }
 
 func (qsHandler *QuestionHandler) Testing(echoCtx echo.Context) (err error) {
@@ -321,6 +324,23 @@ func (qsHandler *QuestionHandler) GetS3Credentials(echoCtx echo.Context) (error)
 	//log.Info("S3 Region: " + os.Getenv("ENV_S3_REGION"))
 
 	return echoCtx.JSON(http.StatusOK, s3cred)
+}
+
+func (qsHandler *QuestionHandler) GetQuestionByID_NoAuth(echoCtx echo.Context) (error){
+
+	// _, _ = restricted(echoCtx)
+
+	questionID := echoCtx.Param("id")	
+	requestCtx := echoCtx.Request().Context()
+
+	question, err := qsHandler.QuestionUC.GetQuestion(requestCtx, questionID)
+	
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+
+	return echoCtx.JSON(http.StatusOK, question)
+
 }
 
 func restricted(c echo.Context) (string, string) {
