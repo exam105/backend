@@ -31,6 +31,8 @@ type SearchResult_Paper struct {
 	System  		string    			`json:"system,omitempty" bson:"system,omitempty"`
 	Board   		string    			`json:"board,omitempty" bson:"board,omitempty"`
 	Date    		time.Time 			`json:"date,omitempty" bson:"date"`
+	QuestionHexIds 	[]string           	`json:"question_hex_ids,omitempty" bson:"question_hex_ids"`
+	IsTheory       	bool               	`json:"is_theory,omitempty" bson:"is_theory"`
 }
 
 // Question Use Case / Service layer
