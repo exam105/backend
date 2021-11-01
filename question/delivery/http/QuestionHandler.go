@@ -55,8 +55,10 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 	//S3 Credentials
 	grp.GET("/question/s3credentials",handler.GetS3Credentials)
 
+	//JWT Free URLs
 	grp2 := e.Group("exam")
 	grp2.GET("/question/:id", handler.GetQuestionByID_NoAuth)	
+	grp2.GET("/questions/theory/:metaid", handler.GetListOfMCQsByMetadataID_NoAuth)	
 }
 
 func (qsHandler *QuestionHandler) Testing(echoCtx echo.Context) (err error) {
@@ -340,6 +342,23 @@ func (qsHandler *QuestionHandler) GetQuestionByID_NoAuth(echoCtx echo.Context) (
 	}
 
 	return echoCtx.JSON(http.StatusOK, question)
+
+}
+
+func (qsHandler *QuestionHandler) GetListOfMCQsByMetadataID_NoAuth(echoCtx echo.Context) (error){
+
+	// _, _ = restricted(echoCtx)
+
+	metadataID := echoCtx.Param("metaid")	
+	requestCtx := echoCtx.Request().Context()
+
+	allQuestion, err := qsHandler.QuestionUC.GetMCQsByMetadataID(requestCtx, metadataID)
+
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+
+	return echoCtx.JSON(http.StatusOK, allQuestion)
 
 }
 
