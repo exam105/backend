@@ -59,6 +59,7 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 	grp2 := e.Group("exam")
 	grp2.GET("/question/:id", handler.GetQuestionByID_NoAuth)	
 	grp2.GET("/questions/theory/:metaid", handler.GetListOfMCQsByMetadataID_NoAuth)	
+	grp2.GET("/questions/:metaid", handler.GetListOfMCQsByMetadataID_NoAuth)
 }
 
 func (qsHandler *QuestionHandler) Testing(echoCtx echo.Context) (err error) {
