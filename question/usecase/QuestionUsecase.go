@@ -363,6 +363,14 @@ func (qsUC *questionUsecase) GetQuestion(requestCtx context.Context, objectID st
 	return qsUC.questionRepo.GetQuestion(ctx, objectID)	
 }
 
+func (qsUC *questionUsecase) GetQuestionNoAuth(requestCtx context.Context, objectID string) (domain.SearchResult_TheoryMcq, error) {
+
+	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
+	defer cancel()
+
+	return qsUC.questionRepo.GetQuestionNoAuth(ctx, objectID)	
+}
+
 func (qsUC *questionUsecase) GetTheoryQuestion(requestCtx context.Context, objectID string) (domain.TheoryQuestion, error) {
 
 	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)

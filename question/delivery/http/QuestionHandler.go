@@ -337,7 +337,7 @@ func (qsHandler *QuestionHandler) GetQuestionByID_NoAuth(echoCtx echo.Context) (
 	questionID := echoCtx.Param("id")	
 	requestCtx := echoCtx.Request().Context()
 
-	question, err := qsHandler.QuestionUC.GetQuestion(requestCtx, questionID)
+	question, err := qsHandler.QuestionUC.GetQuestionNoAuth(requestCtx, questionID)
 	
 	if err != nil {
 		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})

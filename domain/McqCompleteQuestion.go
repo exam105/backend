@@ -72,6 +72,7 @@ type QuestionUsecase interface {
 	AddSingleTheoryQuestion(requestCtx context.Context, question *TheoryQuestion, metadataID string) (int64, error)	
 	
 	GetQuestion(requestCtx context.Context, questionID string) (Question, error)
+	GetQuestionNoAuth(requestCtx context.Context, questionID string) (SearchResult_TheoryMcq, error)
 	GetTheoryQuestion(requestCtx context.Context, questionID string) (TheoryQuestion, error)
 	
 	UpdateQuestion(requestCtx context.Context, updatedQuestion Question, questionID string) (int64, error)
@@ -95,6 +96,7 @@ type QuestionRepository interface {
 	AddSingleTheoryQuestion(requestCtx context.Context, question *TheoryQuestion, metadataID string) (int64, error)	
 	
 	GetQuestion(requestCtx context.Context, questionID string) (Question, error)
+	GetQuestionNoAuth(requestCtx context.Context, questionID string) (SearchResult_TheoryMcq, error)
 	GetTheoryQuestion(requestCtx context.Context, questionID string) (TheoryQuestion, error)
 	
 	UpdateQuestion(requestCtx context.Context, updatedQuestion Question, questionID string) (int64, error)

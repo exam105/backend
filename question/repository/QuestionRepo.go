@@ -265,6 +265,26 @@ func (db *questionRepo) GetQuestion(ctx context.Context, questionID string) (dom
 	return singleQuestion, nil
 }
 
+//This will return result of Theory and MCQ questions
+func (db *questionRepo) GetQuestionNoAuth(ctx context.Context, questionID string) (domain.SearchResult_TheoryMcq, error) {
+
+	database := db.Conn.Database("exam105")
+	questionsCollection := database.Collection("questions")
+	question, err := primitive.ObjectIDFromHex(questionID)
+
+	var searchResult domain.SearchResult_TheoryMcq
+	err = questionsCollection.FindOne(ctx, 
+		bson.M{"_id": question}).Decode(&searchResult)
+
+	if err != nil {
+		log.Println( logging.MSG_WrongDocumentID, err.Error())
+		return domain.SearchResult_TheoryMcq{}, fmt.Errorf(logging.MSG_WrongDocumentID + "\n ID: %s \t" + err.Error(), questionID)
+	}
+
+	fmt.Printf("Questions: %+v \n", searchResult)
+	return searchResult, nil
+}
+
 func (db *questionRepo) GetTheoryQuestion(ctx context.Context, questionID string) (domain.TheoryQuestion, error) {
 
 	database := db.Conn.Database("exam105")
