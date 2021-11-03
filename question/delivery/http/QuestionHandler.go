@@ -58,6 +58,7 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 	//JWT Free URLs
 	grp2 := e.Group("exam")
 	grp2.GET("/question/:id", handler.GetQuestionByID_NoAuth)	
+	grp2.GET("/question/theory/:id", handler.GetTheoryQuestionByID_NoAuth)
 	grp2.GET("/questions/theory/:metaid", handler.GetListOfMCQsByMetadataID_NoAuth)	
 	grp2.GET("/questions/:metaid", handler.GetListOfMCQsByMetadataID_NoAuth)
 }
@@ -360,6 +361,23 @@ func (qsHandler *QuestionHandler) GetListOfMCQsByMetadataID_NoAuth(echoCtx echo.
 	}
 
 	return echoCtx.JSON(http.StatusOK, allQuestion)
+
+}
+
+func (qsHandler *QuestionHandler) GetTheoryQuestionByID_NoAuth(echoCtx echo.Context) (error){
+
+	// _, _ = restricted(echoCtx)
+
+	questionID := echoCtx.Param("id")	
+	requestCtx := echoCtx.Request().Context()
+
+	question, err := qsHandler.QuestionUC.GetTheoryQuestion(requestCtx, questionID)
+	
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+
+	return echoCtx.JSON(http.StatusOK, question)
 
 }
 
