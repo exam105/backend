@@ -598,7 +598,7 @@ func (db *questionRepo) AddSingleTheoryQuestion(ctx context.Context, singleQuest
    return  updated.ModifiedCount, nil
 }
 
-func (db *questionRepo) GetMetadataInfoByMetaIDNoAuth(requestCtx context.Context, metadataID string) (domain.MetadataBson, error) {
+func (db *questionRepo) GetMetadataInfoByMetaIDNoAuth(ctx context.Context, metadataID string) (domain.MetadataBson, error) {
 
 	database := db.Conn.Database("exam105")
 	questionsCollection := database.Collection("metadata")
