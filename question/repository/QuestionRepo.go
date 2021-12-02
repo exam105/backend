@@ -598,6 +598,25 @@ func (db *questionRepo) AddSingleTheoryQuestion(ctx context.Context, singleQuest
    return  updated.ModifiedCount, nil
 }
 
+func (db *questionRepo) GetMetadataInfoByMetaIDNoAuth(requestCtx context.Context, metadataID string) (domain.MetadataBson, error) {
+
+	database := db.Conn.Database("exam105")
+	questionsCollection := database.Collection("metadata")
+	metadata, err := primitive.ObjectIDFromHex(metadataID)
+
+	var singleMetaInfo domain.MetadataBson
+	err = questionsCollection.FindOne(ctx, 
+		bson.M{"_id": metadata}).Decode(&singleMetaInfo)
+
+	if err != nil {
+		log.Println( logging.MSG_WrongDocumentID, err.Error())
+		return domain.MetadataBson{}, fmt.Errorf(logging.MSG_WrongDocumentID + "\n ID: %s \t" + err.Error(), metadataID)
+	}
+
+	// fmt.Printf("Questions: %+v \n", singleMetaInfo)
+	return singleMetaInfo, nil
+}
+
 func removeIndex(s []string, index int) []string {
 	return append(s[:index], s[index+1:]...)
 }

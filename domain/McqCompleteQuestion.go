@@ -64,7 +64,8 @@ type QuestionUsecase interface {
 	UpdateMetadataById(requestCtx context.Context, metadata MetadataBson, docID string) (int64, error)
 	DeleteMetadataById(requestCtx context.Context, docID string) (int64, error)
 	GetMCQsByMetadataID(requestCtx context.Context, docID string) ([]DisplayQuestion, error)
-	
+	GetMetadataInfoByMetaIDNoAuth(requestCtx context.Context, metadataID string) (MetadataBson, error)
+
 	SaveMCQ(requestCtx context.Context, questions *MCQModel, username string, useremail string) (error)	
 	SaveTheoryQuestion(requestCtx context.Context, questions *TheoryModel, username string, useremail string) (error)
 	
@@ -91,6 +92,7 @@ type QuestionRepository interface {
 	UpdateMetadataById(requestCtx context.Context, metadata MetadataBson, docID string) (int64, error)
 	DeleteMetadataById(requestCtx context.Context, docID string) (int64, error)
 	GetMCQsByMetadataID(requestCtx context.Context, docID string) ([]DisplayQuestion, error)	
+	GetMetadataInfoByMetaIDNoAuth(requestCtx context.Context, metadataID string) (MetadataBson, error)
 
 	AddSingleQuestion(ctx context.Context, mcq *Question, metadataID string) (int64,error)
 	AddSingleTheoryQuestion(requestCtx context.Context, question *TheoryQuestion, metadataID string) (int64, error)	

@@ -60,6 +60,8 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 	grp2.GET("/question/:id", handler.GetQuestionByID_NoAuth)	// This will return Theory and MCQ question
 	grp2.GET("/questions/theory/:metaid", handler.GetListOfMCQsByMetadataID_NoAuth)	
 	grp2.GET("/questions/:metaid", handler.GetListOfMCQsByMetadataID_NoAuth)
+	grp2.GET("/metadata/:id", handler.GetMetadataById_NoAuth)
+	grp2.GET("/env",handler.GetEnvVariables)
 }
 
 func (qsHandler *QuestionHandler) Testing(echoCtx echo.Context) (err error) {
@@ -361,6 +363,43 @@ func (qsHandler *QuestionHandler) GetListOfMCQsByMetadataID_NoAuth(echoCtx echo.
 
 	return echoCtx.JSON(http.StatusOK, allQuestion)
 
+}
+
+func (qsHandler *QuestionHandler) GetMetadataById_NoAuth(echoCtx echo.Context) (error){
+
+	// _, _ = restricted(echoCtx)
+
+	metadataID := echoCtx.Param("metaid")	
+	requestCtx := echoCtx.Request().Context()
+
+	allQuestion, err := qsHandler.QuestionUC.GetMetadataInfoByMetaIDNoAuth(requestCtx, metadataID)
+
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+
+	return echoCtx.JSON(http.StatusOK, allQuestion)
+
+}
+
+func (qsHandler *QuestionHandler) GetEnvVariables(echoCtx echo.Context) (error){
+
+	type S3Cred struct {
+		Username       	string 				`json:"username" bson:"username"`
+		Accesskey 		string 				`json:"accesskey" bson:"accesskey"`
+		Secretkey 		string 				`json:"secretkey" bson:"secretkey"`
+		Region			string				`json:"region" bson:"region"`
+	}
+	
+	s3cred := new(S3Cred)
+	s3cred.Username = os.Getenv("ENV_S3_USERNAME")
+	s3cred.Accesskey = os.Getenv("ENV_S3_ACCESS_KEY_ID")
+	s3cred.Secretkey = os.Getenv("ENV_S3_SECRET_ACCESS_KEY")
+	s3cred.Region = os.Getenv("ENV_S3_REGION")
+
+	//log.Info("S3 Region: " + os.Getenv("ENV_S3_REGION"))
+
+	return echoCtx.JSON(http.StatusOK, s3cred)
 }
 
 func restricted(c echo.Context) (string, string) {

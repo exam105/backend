@@ -402,3 +402,11 @@ func (qsUC *questionUsecase) DeleteQuestion(requestCtx context.Context, metaID s
 
 	return qsUC.questionRepo.DeleteQuestion(ctx, metaID, questionID)
 }
+
+func (qsUC *questionUsecase) GetMetadataInfoByMetaIDNoAuth(requestCtx context.Context, metadataID string) (domain.MetadataBson, error){
+
+	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
+	defer cancel()
+
+	return qsUC.questionRepo.GetMetadataInfoByMetaIDNoAuth(ctx, metadataID)	
+}
