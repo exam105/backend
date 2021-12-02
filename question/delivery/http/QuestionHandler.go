@@ -384,22 +384,16 @@ func (qsHandler *QuestionHandler) GetMetadataById_NoAuth(echoCtx echo.Context) (
 
 func (qsHandler *QuestionHandler) GetEnvVariables(echoCtx echo.Context) (error){
 
-	type S3Cred struct {
-		Username       	string 				`json:"username" bson:"username"`
-		Accesskey 		string 				`json:"accesskey" bson:"accesskey"`
-		Secretkey 		string 				`json:"secretkey" bson:"secretkey"`
-		Region			string				`json:"region" bson:"region"`
+	type Env struct {
+		GoogleAnalyticsMeasurementID       	string 				`json:"googleanalytics" bson:"googleanalytics"`
 	}
 	
-	s3cred := new(S3Cred)
-	s3cred.Username = os.Getenv("ENV_S3_USERNAME")
-	s3cred.Accesskey = os.Getenv("ENV_S3_ACCESS_KEY_ID")
-	s3cred.Secretkey = os.Getenv("ENV_S3_SECRET_ACCESS_KEY")
-	s3cred.Region = os.Getenv("ENV_S3_REGION")
+	envVariables := new(Env)
+	envVariables.GoogleAnalyticsMeasurementID = os.Getenv("ENV_GOOGLE_ANALYTICS_MEASUREMENT_ID")
 
 	//log.Info("S3 Region: " + os.Getenv("ENV_S3_REGION"))
 
-	return echoCtx.JSON(http.StatusOK, s3cred)
+	return echoCtx.JSON(http.StatusOK, envVariables)
 }
 
 func restricted(c echo.Context) (string, string) {
