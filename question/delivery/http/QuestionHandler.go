@@ -60,7 +60,7 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 	grp2.GET("/question/:id", handler.GetQuestionByID_NoAuth)	// This will return Theory and MCQ question
 	grp2.GET("/questions/theory/:metaid", handler.GetListOfMCQsByMetadataID_NoAuth)	
 	grp2.GET("/questions/:metaid", handler.GetListOfMCQsByMetadataID_NoAuth)
-	grp2.GET("/metadata/:id", handler.GetMetadataById_NoAuth)
+	grp2.GET("/metadata/:metaid", handler.GetMetadataById_NoAuth)
 	grp2.GET("/env",handler.GetEnvVariables)
 }
 
