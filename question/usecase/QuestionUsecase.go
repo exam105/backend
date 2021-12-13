@@ -47,6 +47,7 @@ func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain
 			metadataBson.Username = username
 			metadataBson.Useremail = useremail
 			metadataBson.IsTheory = currentQuesPointer.IsTheory
+			metadataBson.Reference = currentQuesPointer.Reference
 
 		} else {
 			_id := primitive.NewObjectID()
@@ -146,6 +147,7 @@ func (qsUC *questionUsecase) SaveTheoryQuestion(requestCtx context.Context, allM
 			metadataBson.Username = username
 			metadataBson.Useremail = useremail
 			metadataBson.IsTheory = currentQuesPointer.IsTheory
+			metadataBson.Reference = currentQuesPointer.Reference
 
 		} else {
 			_id := primitive.NewObjectID()

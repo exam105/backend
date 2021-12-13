@@ -7,18 +7,19 @@ import (
 )
 
 type MCQModel []struct {
-	Subject  string    `json:"subject,omitempty" bson:"subject,omitempty"`
-	System   string    `json:"system,omitempty" bson:"system,omitempty"`
-	Board    string    `json:"board,omitempty" bson:"board,omitempty"`
-	Series   string    `json:"series,omitempty" bson:"series,omitempty"`
-	Paper    string    `json:"paper,omitempty" bson:"paper,omitempty"`
-	Date     time.Time `json:"date,omitempty" bson:"date"`
-	Question string    `json:"question,omitempty" bson:"question,omitempty"`
-	Marks    string    `json:"marks,omitempty" bson:"marks,omitempty"`
-	Options  option    `json:"options,omitempty" bson:"options,omitempty"`
-	Topics   topic     `json:"topics,omitempty" bson:"topics,omitempty"`
-	Images   image     `json:"images,omitempty" bson:"images,omitempty"`
-	IsTheory bool      `json:"is_theory,omitempty" bson:"is_theory"`
+	Subject  	string    `json:"subject,omitempty" bson:"subject,omitempty"`
+	System   	string    `json:"system,omitempty" bson:"system,omitempty"`
+	Board    	string    `json:"board,omitempty" bson:"board,omitempty"`
+	Series   	string    `json:"series,omitempty" bson:"series,omitempty"`
+	Paper    	string    `json:"paper,omitempty" bson:"paper,omitempty"`
+	Date     	time.Time `json:"date,omitempty" bson:"date"`
+	Question 	string    `json:"question,omitempty" bson:"question,omitempty"`
+	Marks    	string    `json:"marks,omitempty" bson:"marks,omitempty"`
+	Options  	option    `json:"options,omitempty" bson:"options,omitempty"`
+	Topics   	topic     `json:"topics,omitempty" bson:"topics,omitempty"`
+	Images   	image     `json:"images,omitempty" bson:"images,omitempty"`
+	IsTheory 	bool      `json:"is_theory,omitempty" bson:"is_theory"`
+	Reference   string `json:"reference,omitempty" bson:"reference"`
 
 }
 
@@ -35,7 +36,7 @@ type TheoryModel []struct {
 	Topics   	topic     `json:"topics,omitempty" bson:"topics,omitempty"`
 	Images   	image     `json:"images,omitempty" bson:"images,omitempty"`
 	IsTheory 	bool      `json:"is_theory,omitempty" bson:"is_theory"`
-	//Reference   string    `json:"reference,omitempty" bson:"reference"`
+	Reference   string    `json:"reference,omitempty" bson:"reference"`
 
 }
 

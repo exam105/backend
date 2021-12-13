@@ -33,6 +33,8 @@ type SearchResult_Paper struct {
 	Date    		time.Time 			`json:"date,omitempty" bson:"date"`
 	QuestionHexIds 	[]string           	`json:"question_hex_ids,omitempty" bson:"question_hex_ids"`
 	IsTheory       	bool               	`json:"is_theory,omitempty" bson:"is_theory"`
+	Reference   	string    			`json:"reference,omitempty" bson:"reference"`
+
 }
 
 // Question Use Case / Service layer
