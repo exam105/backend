@@ -121,6 +121,7 @@ func (db *questionRepo) UpdateMetadataById(ctx context.Context, receivedMetadata
 				{Key: "series", Value: receivedMetadata.Series},
 				{Key: "paper", Value: receivedMetadata.Paper},
 				{Key: "date", Value: receivedMetadata.Date},
+				{Key: "reference", Value: receivedMetadata.Reference},
 			}},
 		},
 	)
