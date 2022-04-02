@@ -183,19 +183,9 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 // configS3 creates the S3 client
 func configS3() *s3.Client {
 
-	// fmt.Println("Access_"+os.Getenv("ENV_S3_ACCESS_KEY_ID"))
-	// fmt.Println("Access_"+os.Getenv("ENV_S3_ACCESS_KEY_ID"))
 	creds := credentials.NewStaticCredentialsProvider(os.Getenv("ENV_S3_ACCESS_KEY_ID"), os.Getenv("ENV_S3_SECRET_ACCESS_KEY"), "")
-
 	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithCredentialsProvider(creds), config.WithRegion(os.Getenv("ENV_S3_REGION")))
-	// if err != nil {
-	// 	log.Printf("error: %v", err)
-	// 	return
-	// } else {
-	// 	fmt.Println(" S3 has been initializd ! ")
-	// }
 
-	// cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(os.Getenv("ENV_S3_REGION")))
 	if err != nil {
 		log.Fatal(err)
 	} else {

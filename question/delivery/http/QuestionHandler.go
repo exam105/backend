@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -41,7 +42,6 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase, thisAwsC
 	grp := e.Group("dashboard/de")
 	grp.Use(middleware.JWT([]byte(os.Getenv("ENV_ACCESS_TOKEN_SECRET")))) // The string "secret" should be accessed from data entry. For details, https://echo.labstack.com/cookbook/jwt
 
-	grp.GET("/test", handler.Testing)
 	grp.POST("/questions", handler.SaveMCQ)
 	grp.GET("/metadata", handler.GetMetadataByUser)
 	grp.POST("/metadata/:id", handler.UpdateMetadataByUser)
@@ -66,12 +66,14 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase, thisAwsC
 
 	//JWT Free URLs
 	grp2 := e.Group("exam")
+	grp2.GET("/test", handler.Testing)
 	grp2.GET("/question/:id", handler.GetQuestionByID_NoAuth) // This will return Theory and MCQ question
 	grp2.GET("/questions/theory/:metaid", handler.GetListOfMCQsByMetadataID_NoAuth)
 	grp2.GET("/questions/:metaid", handler.GetListOfMCQsByMetadataID_NoAuth)
 	grp2.GET("/metadata/:metaid", handler.GetMetadataById_NoAuth)
 	grp2.GET("/env", handler.GetEnvVariables)
-	grp2.POST("/question/uploadImage", handler.UploadImageToS3)
+	grp2.POST("/question/uploadimage", handler.UploadImageToS3)
+	grp2.GET("/homepage/links", handler.FetchHomePageLinks)
 }
 
 func (qsHandler *QuestionHandler) Testing(echoCtx echo.Context) (err error) {
@@ -400,6 +402,40 @@ func (qsHandler *QuestionHandler) UploadImageToS3(echoCtx echo.Context) error {
 
 }
 
+func (qsHandler *QuestionHandler) FetchHomePageLinks(echoCtx echo.Context) error {
+
+	requestInput := &s3.GetObjectInput{
+		Bucket: aws.String("exam105"),
+		Key:    aws.String("homepage.json"),
+	}
+
+	result, err := qsHandler.awsS3Client.GetObject(context.TODO(), requestInput)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer result.Body.Close()
+
+	body1, err := ioutil.ReadAll(result.Body)
+	if err != nil {
+		fmt.Println(err)
+	}
+	bodyString1 := fmt.Sprintf("%s", body1)
+
+	// uploader := manager.NewUploader(qsHandler.awsS3Client)
+	// uploadResult, err := uploader.Upload(context.TODO(), &s3.PutObjectInput{
+	// 	Bucket: aws.String("exam105"),
+	// 	Key:    aws.String(sb.String()),
+	// 	Body:   file,
+	// })
+
+	// if err != nil {
+	// 	return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	// }
+
+	return echoCtx.JSON(http.StatusOK, bodyString1)
+
+}
+
 func (qsHandler *QuestionHandler) GetQuestionByID_NoAuth(echoCtx echo.Context) error {
 
 	// _, _ = restricted(echoCtx)
@@ -459,8 +495,6 @@ func (qsHandler *QuestionHandler) GetEnvVariables(echoCtx echo.Context) error {
 
 	envVariables := new(Env)
 	envVariables.GoogleAnalyticsMeasurementID = os.Getenv("ENV_GOOGLE_ANALYTICS_MEASUREMENT_ID")
-
-	//log.Info("S3 Region: " + os.Getenv("ENV_S3_REGION"))
 
 	return echoCtx.JSON(http.StatusOK, envVariables)
 }

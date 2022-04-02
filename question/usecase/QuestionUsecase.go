@@ -1,11 +1,8 @@
 package usecase
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"net/http"
-	"os"
 	"time"
 
 	//"path/filepath"
@@ -14,8 +11,6 @@ import (
 	"github.com/exam105-UPD/backend/domain"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
@@ -423,53 +418,4 @@ func (qsUC *questionUsecase) GetMetadataInfoByMetaIDNoAuth(requestCtx context.Co
 	defer cancel()
 
 	return qsUC.questionRepo.GetMetadataInfoByMetaIDNoAuth(ctx, metadataID)
-}
-
-func (qsUC *questionUsecase) UploadImageToS3(requestCtx context.Context, imageFile string) error {
-
-	_, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
-	defer cancel()
-
-	// src, err := file.Open()
-	// if err != nil {
-	// 	return err
-	// }
-	// defer src.Close()
-
-	// Destination
-	// dst, err := os.Create(imageFile)
-	// if err != nil {
-	// 	return err
-	// }
-	// defer dst.Close()
-
-	// Open the file from the file path
-	upFile, err := os.Open(imageFile)
-	if err != nil {
-		return fmt.Errorf("could not open local filepath [%v]: %+v", imageFile, err)
-	}
-	defer upFile.Close()
-
-	// Get the file info
-	upFileInfo, _ := upFile.Stat()
-	fileSize := upFileInfo.Size()
-	fileBuffer := make([]byte, fileSize)
-	upFile.Read(fileBuffer)
-
-	uploader := manager.NewUploader(qsUC.awsS3Client)
-	uploadResult, err := uploader.Upload(context.TODO(), &s3.PutObjectInput{
-		Bucket:      aws.String("exam105"),
-		Key:         aws.String("test/" + imageFile),
-		Body:        bytes.NewReader(fileBuffer),
-		ContentType: aws.String(http.DetectContentType(fileBuffer)),
-	})
-
-	if err != nil {
-		fmt.Printf("Error: %v  \n", err)
-		return err
-	}
-
-	fmt.Println("Location: " + uploadResult.Location)
-	fmt.Printf("Image has been uploaded ->>> %v \t \n", imageFile)
-	return nil
 }

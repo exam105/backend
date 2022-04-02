@@ -73,8 +73,6 @@ type QuestionUsecase interface {
 	AddSingleQuestion(requestCtx context.Context, question *Question, metadataID string) (int64, error)
 	AddSingleTheoryQuestion(requestCtx context.Context, question *TheoryQuestion, metadataID string) (int64, error)
 
-	UploadImageToS3(requestCtx context.Context, imageFile string) error
-
 	GetQuestion(requestCtx context.Context, questionID string) (Question, error)
 	GetQuestionNoAuth(requestCtx context.Context, questionID string) (SearchResult_TheoryMcq, error)
 	GetTheoryQuestion(requestCtx context.Context, questionID string) (TheoryQuestion, error)
