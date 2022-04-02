@@ -1,29 +1,41 @@
 package usecase
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"net/http"
+	"os"
 	"time"
+
+	//"path/filepath"
+	//"os"
 
 	"github.com/exam105-UPD/backend/domain"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 type questionUsecase struct {
 	questionRepo   domain.QuestionRepository
 	contextTimeout time.Duration
+	awsS3Client    *s3.Client
 }
 
 // NewQuestionUsecase will create new an questionUsecase object representation of domain.QuestionUsecase interface in McqCompleteQuestion.go file
-func NewQuestionUsecase(qsRepo domain.QuestionRepository, timeout time.Duration) domain.QuestionUsecase {
+func NewQuestionUsecase(qsRepo domain.QuestionRepository, timeout time.Duration, thisAwsClient *s3.Client) domain.QuestionUsecase {
 	return &questionUsecase{
 		questionRepo:   qsRepo,
 		contextTimeout: timeout,
+		awsS3Client:    thisAwsClient,
 	}
 }
 
-func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain.MCQModel, username string, useremail string) (error) {
-	
+func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain.MCQModel, username string, useremail string) error {
+
 	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
 	defer cancel()
 
@@ -122,7 +134,7 @@ func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain
 	return nil
 }
 
-func (qsUC *questionUsecase) SaveTheoryQuestion(requestCtx context.Context, allMcqs *domain.TheoryModel, username string, useremail string) (error) {
+func (qsUC *questionUsecase) SaveTheoryQuestion(requestCtx context.Context, allMcqs *domain.TheoryModel, username string, useremail string) error {
 
 	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
 	defer cancel()
@@ -151,7 +163,7 @@ func (qsUC *questionUsecase) SaveTheoryQuestion(requestCtx context.Context, allM
 
 		} else {
 			_id := primitive.NewObjectID()
-			questionText := currentQuesPointer. Question
+			questionText := currentQuesPointer.Question
 			marks := currentQuesPointer.Marks
 			answer := currentQuesPointer.Answer
 			topicsArray := make([]domain.QuestionTopics, 0)
@@ -210,12 +222,12 @@ func (qsUC *questionUsecase) SaveTheoryQuestion(requestCtx context.Context, allM
 }
 
 func (qsUC *questionUsecase) AddSingleQuestion(requestCtx context.Context, singleMCQ *domain.Question, metadataID string) (int64, error) {
-	
+
 	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
 	defer cancel()
 
 	singleQuestion := new(domain.Question)
-	
+
 	_id := primitive.NewObjectID()
 	questionText := singleMCQ.Question
 	marks := singleMCQ.Marks
@@ -275,12 +287,12 @@ func (qsUC *questionUsecase) AddSingleQuestion(requestCtx context.Context, singl
 }
 
 func (qsUC *questionUsecase) AddSingleTheoryQuestion(requestCtx context.Context, singleMCQ *domain.TheoryQuestion, metadataID string) (int64, error) {
-	
+
 	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
 	defer cancel()
 
 	singleQuestion := new(domain.TheoryQuestion)
-	
+
 	_id := primitive.NewObjectID()
 	questionText := singleMCQ.Question
 	marks := singleMCQ.Marks
@@ -354,7 +366,7 @@ func (qsUC *questionUsecase) GetMCQsByMetadataID(requestCtx context.Context, met
 	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
 	defer cancel()
 
-	return qsUC.questionRepo.GetMCQsByMetadataID(ctx, metadataID)	
+	return qsUC.questionRepo.GetMCQsByMetadataID(ctx, metadataID)
 }
 
 func (qsUC *questionUsecase) GetQuestion(requestCtx context.Context, objectID string) (domain.Question, error) {
@@ -362,7 +374,7 @@ func (qsUC *questionUsecase) GetQuestion(requestCtx context.Context, objectID st
 	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
 	defer cancel()
 
-	return qsUC.questionRepo.GetQuestion(ctx, objectID)	
+	return qsUC.questionRepo.GetQuestion(ctx, objectID)
 }
 
 func (qsUC *questionUsecase) GetQuestionNoAuth(requestCtx context.Context, objectID string) (domain.SearchResult_TheoryMcq, error) {
@@ -370,7 +382,7 @@ func (qsUC *questionUsecase) GetQuestionNoAuth(requestCtx context.Context, objec
 	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
 	defer cancel()
 
-	return qsUC.questionRepo.GetQuestionNoAuth(ctx, objectID)	
+	return qsUC.questionRepo.GetQuestionNoAuth(ctx, objectID)
 }
 
 func (qsUC *questionUsecase) GetTheoryQuestion(requestCtx context.Context, objectID string) (domain.TheoryQuestion, error) {
@@ -378,7 +390,7 @@ func (qsUC *questionUsecase) GetTheoryQuestion(requestCtx context.Context, objec
 	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
 	defer cancel()
 
-	return qsUC.questionRepo.GetTheoryQuestion(ctx, objectID)	
+	return qsUC.questionRepo.GetTheoryQuestion(ctx, objectID)
 }
 
 func (qsUC *questionUsecase) UpdateQuestion(requestCtx context.Context, updatedQuestion domain.Question, questionID string) (int64, error) {
@@ -405,10 +417,59 @@ func (qsUC *questionUsecase) DeleteQuestion(requestCtx context.Context, metaID s
 	return qsUC.questionRepo.DeleteQuestion(ctx, metaID, questionID)
 }
 
-func (qsUC *questionUsecase) GetMetadataInfoByMetaIDNoAuth(requestCtx context.Context, metadataID string) (domain.Metadata, error){
+func (qsUC *questionUsecase) GetMetadataInfoByMetaIDNoAuth(requestCtx context.Context, metadataID string) (domain.Metadata, error) {
 
 	ctx, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
 	defer cancel()
 
-	return qsUC.questionRepo.GetMetadataInfoByMetaIDNoAuth(ctx, metadataID)	
+	return qsUC.questionRepo.GetMetadataInfoByMetaIDNoAuth(ctx, metadataID)
+}
+
+func (qsUC *questionUsecase) UploadImageToS3(requestCtx context.Context, imageFile string) error {
+
+	_, cancel := context.WithTimeout(requestCtx, qsUC.contextTimeout)
+	defer cancel()
+
+	// src, err := file.Open()
+	// if err != nil {
+	// 	return err
+	// }
+	// defer src.Close()
+
+	// Destination
+	// dst, err := os.Create(imageFile)
+	// if err != nil {
+	// 	return err
+	// }
+	// defer dst.Close()
+
+	// Open the file from the file path
+	upFile, err := os.Open(imageFile)
+	if err != nil {
+		return fmt.Errorf("could not open local filepath [%v]: %+v", imageFile, err)
+	}
+	defer upFile.Close()
+
+	// Get the file info
+	upFileInfo, _ := upFile.Stat()
+	fileSize := upFileInfo.Size()
+	fileBuffer := make([]byte, fileSize)
+	upFile.Read(fileBuffer)
+
+	uploader := manager.NewUploader(qsUC.awsS3Client)
+	uploadResult, err := uploader.Upload(context.TODO(), &s3.PutObjectInput{
+		Bucket:      aws.String("exam105"),
+		Key:         aws.String("test/" + imageFile),
+		Body:        bytes.NewReader(fileBuffer),
+		ContentType: aws.String(http.DetectContentType(fileBuffer)),
+	})
+
+	if err != nil {
+		fmt.Printf("Error: %v  \n", err)
+		return err
+	}
+
+	fmt.Println("Location: " + uploadResult.Location)
+	fmt.Printf("Image has been uploaded ->>> %v \t \n", imageFile)
+	return nil
 }

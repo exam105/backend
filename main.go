@@ -1,25 +1,26 @@
 package main
 
 import (
-	"net/http"
-	"fmt"
-	"github.com/exam105-UPD/backend/logging"
-	"os"
 	"context"
+	"fmt"
 	"log"
+	"net/http"
+	"os"
 	"time"
 
+	"github.com/exam105-UPD/backend/logging"
+
 	_searchHandler "github.com/exam105-UPD/backend/search/delivery/http"
-	_searchUseCase "github.com/exam105-UPD/backend/search/usecase"
 	_searchRepo "github.com/exam105-UPD/backend/search/repository"
+	_searchUseCase "github.com/exam105-UPD/backend/search/usecase"
 
 	_loginHandler "github.com/exam105-UPD/backend/login/delivery/http"
-	_loginUseCase "github.com/exam105-UPD/backend/login/usecase"
 	_loginRepo "github.com/exam105-UPD/backend/login/repository"
+	_loginUseCase "github.com/exam105-UPD/backend/login/usecase"
 
 	_questionHandler "github.com/exam105-UPD/backend/question/delivery/http"
-	_questionUseCase "github.com/exam105-UPD/backend/question/usecase"
 	_questionRepo "github.com/exam105-UPD/backend/question/repository"
+	_questionUseCase "github.com/exam105-UPD/backend/question/usecase"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo"
@@ -27,6 +28,10 @@ import (
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 var MongoConnClient *mongo.Client
@@ -61,7 +66,7 @@ func main() {
 
 	dbConn := initializeMongoDatabase(ctx)
 	logging.InitializeMessages()
-	
+
 	defer func() {
 		err := dbConn.Disconnect(ctx)
 		if err != nil {
@@ -69,13 +74,16 @@ func main() {
 		}
 	}()
 
+	//*** S3 Configuration ***
+	s3Object := configS3()
+
 	e := echo.New()
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
-	  }))
-	
+	}))
+
 	//middL := _middleware.InitMiddleware()
 	//e.Use(middL.CORS)
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
@@ -97,8 +105,8 @@ func main() {
 	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
 
 	qsRepo := _questionRepo.NewQuestionRepository(dbConn)
-	qsUC := _questionUseCase.NewQuestionUsecase(qsRepo, timeoutContext)
-	_questionHandler.NewQuestionHandler(e, qsUC)
+	qsUC := _questionUseCase.NewQuestionUsecase(qsRepo, timeoutContext, s3Object)
+	_questionHandler.NewQuestionHandler(e, qsUC, s3Object)
 
 	//**********Login Wiring**************
 
@@ -110,11 +118,12 @@ func main() {
 	//**********Search Wiring**************
 
 	//timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
-	searchRepo := _searchRepo.NewSearchRepository(dbConn) 
+	searchRepo := _searchRepo.NewSearchRepository(dbConn)
 	searchUC := _searchUseCase.NewSearchUsecase(searchRepo, timeoutContext)
 	_searchHandler.NewSearchHandler(e, searchUC)
 
 	log.Println(e.Start(viper.GetString("server.address")))
+
 }
 
 func initializeMongoDatabase(ctx context.Context) *mongo.Client {
@@ -122,8 +131,8 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	// Set client options
 	var mongoURL string
 	env := os.Getenv("ENV_EXAM105")
-	
-	if env == "LOCAL"  {
+
+	if env == "LOCAL" {
 		mongoURL = os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@54.255.95.50:27017/?authSource=${ENV_MONGO_AUTH_DB}") // Local
 	} else if env == "DEV" {
 		mongoURL = os.ExpandEnv("mongodb://${ENV_MONGO_USER}:${ENV_MONGO_PASS}@mongodb:27017/?authSource=${ENV_MONGO_AUTH_DB}") // DEV
@@ -159,9 +168,9 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	err = client.Ping(ctx, nil)
 
 	if err != nil {
-		//log.Fatal("Couldn't PING to the database \n", err.Error())		
-		panic("Database Replication PING Issue *** "+ err.Error())	
-		
+		//log.Fatal("Couldn't PING to the database \n", err.Error())
+		panic("Database Replication PING Issue *** " + err.Error())
+
 	} else {
 		fmt.Println(" New MongoDB Replica Set connection created ! ")
 	}
@@ -171,3 +180,28 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 
 }
 
+// configS3 creates the S3 client
+func configS3() *s3.Client {
+
+	// fmt.Println("Access_"+os.Getenv("ENV_S3_ACCESS_KEY_ID"))
+	// fmt.Println("Access_"+os.Getenv("ENV_S3_ACCESS_KEY_ID"))
+	creds := credentials.NewStaticCredentialsProvider(os.Getenv("ENV_S3_ACCESS_KEY_ID"), os.Getenv("ENV_S3_SECRET_ACCESS_KEY"), "")
+
+	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithCredentialsProvider(creds), config.WithRegion(os.Getenv("ENV_S3_REGION")))
+	// if err != nil {
+	// 	log.Printf("error: %v", err)
+	// 	return
+	// } else {
+	// 	fmt.Println(" S3 has been initializd ! ")
+	// }
+
+	// cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(os.Getenv("ENV_S3_REGION")))
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		fmt.Println(" S3 has been initializd ! ")
+	}
+
+	return s3.NewFromConfig(cfg)
+
+}

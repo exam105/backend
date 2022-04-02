@@ -1,8 +1,15 @@
 package http
 
 import (
-	"os"
+	"context"
+	"fmt"
 	"net/http"
+	"os"
+	"strings"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/exam105-UPD/backend/domain"
@@ -18,14 +25,16 @@ type ResponseError struct {
 
 // QuestionHandler  service layer
 type QuestionHandler struct {
-	QuestionUC domain.QuestionUsecase
+	QuestionUC  domain.QuestionUsecase
+	awsS3Client *s3.Client
 }
 
 // NewQuestionHandler will initialize the quesrion/ resources endpoint
-func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
+func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase, thisAwsClient *s3.Client) {
 
 	handler := &QuestionHandler{
-		QuestionUC: qsUseCase,
+		QuestionUC:  qsUseCase,
+		awsS3Client: thisAwsClient,
 	}
 
 	// Restricted group
@@ -41,7 +50,7 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 	grp.GET("/questions/:metaid", handler.GetListOfMCQsByMetadataID)
 	grp.GET("/question/:id", handler.GetQuestionByID)
 	grp.POST("/question/:id", handler.UpdateQuestionByID)
-	grp.PUT("/question/meta/:metaid", handler.AddQuestion)	
+	grp.PUT("/question/meta/:metaid", handler.AddQuestion)
 	grp.DELETE("/question/:id/meta/:metaid", handler.DeleteQuestionByID)
 
 	// Theory Questions
@@ -53,15 +62,16 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase) {
 	grp.DELETE("/question/theory/:id/meta/:metaid", handler.DeleteQuestionByID)
 
 	//S3 Credentials
-	grp.GET("/question/s3credentials",handler.GetS3Credentials)
+	grp.GET("/question/s3credentials", handler.GetS3Credentials)
 
 	//JWT Free URLs
 	grp2 := e.Group("exam")
-	grp2.GET("/question/:id", handler.GetQuestionByID_NoAuth)	// This will return Theory and MCQ question
-	grp2.GET("/questions/theory/:metaid", handler.GetListOfMCQsByMetadataID_NoAuth)	
+	grp2.GET("/question/:id", handler.GetQuestionByID_NoAuth) // This will return Theory and MCQ question
+	grp2.GET("/questions/theory/:metaid", handler.GetListOfMCQsByMetadataID_NoAuth)
 	grp2.GET("/questions/:metaid", handler.GetListOfMCQsByMetadataID_NoAuth)
 	grp2.GET("/metadata/:metaid", handler.GetMetadataById_NoAuth)
-	grp2.GET("/env",handler.GetEnvVariables)
+	grp2.GET("/env", handler.GetEnvVariables)
+	grp2.POST("/question/uploadImage", handler.UploadImageToS3)
 }
 
 func (qsHandler *QuestionHandler) Testing(echoCtx echo.Context) (err error) {
@@ -105,13 +115,13 @@ func (qsHandler *QuestionHandler) SaveTheoryQs(echoCtx echo.Context) (err error)
 	return echoCtx.JSON(http.StatusCreated, allQuestion)
 }
 
-func (qsHandler *QuestionHandler) GetMetadataByUser(echoCtx echo.Context) (error) {
+func (qsHandler *QuestionHandler) GetMetadataByUser(echoCtx echo.Context) error {
 
 	username, useremail := restricted(echoCtx)
 	requestCtx := echoCtx.Request().Context()
 
 	metadataInfo, err := qsHandler.QuestionUC.GetMetadataById(requestCtx, username, useremail)
-	
+
 	if err != nil {
 		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
@@ -120,7 +130,7 @@ func (qsHandler *QuestionHandler) GetMetadataByUser(echoCtx echo.Context) (error
 
 }
 
-func (qsHandler *QuestionHandler) UpdateMetadataByUser(echoCtx echo.Context) (error) {
+func (qsHandler *QuestionHandler) UpdateMetadataByUser(echoCtx echo.Context) error {
 
 	_, _ = restricted(echoCtx)
 
@@ -132,7 +142,7 @@ func (qsHandler *QuestionHandler) UpdateMetadataByUser(echoCtx echo.Context) (er
 	requestCtx := echoCtx.Request().Context()
 
 	metadataInfo, err := qsHandler.QuestionUC.UpdateMetadataById(requestCtx, receivedMetadata, docID)
-	
+
 	if err != nil {
 		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
@@ -141,14 +151,14 @@ func (qsHandler *QuestionHandler) UpdateMetadataByUser(echoCtx echo.Context) (er
 
 }
 
-func (qsHandler *QuestionHandler) DeleteMetadataByUser(echoCtx echo.Context) (error) {
+func (qsHandler *QuestionHandler) DeleteMetadataByUser(echoCtx echo.Context) error {
 
 	_, _ = restricted(echoCtx)
 
 	docID := echoCtx.Param("id")
 	requestCtx := echoCtx.Request().Context()
 	metadataInfo, err := qsHandler.QuestionUC.DeleteMetadataById(requestCtx, docID)
-	
+
 	if err != nil {
 		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
@@ -156,11 +166,11 @@ func (qsHandler *QuestionHandler) DeleteMetadataByUser(echoCtx echo.Context) (er
 	return echoCtx.JSON(http.StatusOK, metadataInfo)
 }
 
-func (qsHandler *QuestionHandler) GetListOfMCQsByMetadataID(echoCtx echo.Context) (error){
+func (qsHandler *QuestionHandler) GetListOfMCQsByMetadataID(echoCtx echo.Context) error {
 
 	_, _ = restricted(echoCtx)
 
-	metadataID := echoCtx.Param("metaid")	
+	metadataID := echoCtx.Param("metaid")
 	requestCtx := echoCtx.Request().Context()
 
 	allQuestion, err := qsHandler.QuestionUC.GetMCQsByMetadataID(requestCtx, metadataID)
@@ -173,15 +183,15 @@ func (qsHandler *QuestionHandler) GetListOfMCQsByMetadataID(echoCtx echo.Context
 
 }
 
-func (qsHandler *QuestionHandler) GetQuestionByID(echoCtx echo.Context) (error){
+func (qsHandler *QuestionHandler) GetQuestionByID(echoCtx echo.Context) error {
 
 	_, _ = restricted(echoCtx)
 
-	questionID := echoCtx.Param("id")	
+	questionID := echoCtx.Param("id")
 	requestCtx := echoCtx.Request().Context()
 
 	question, err := qsHandler.QuestionUC.GetQuestion(requestCtx, questionID)
-	
+
 	if err != nil {
 		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
@@ -190,15 +200,15 @@ func (qsHandler *QuestionHandler) GetQuestionByID(echoCtx echo.Context) (error){
 
 }
 
-func (qsHandler *QuestionHandler) GetTheoryQuestionByID(echoCtx echo.Context) (error){
+func (qsHandler *QuestionHandler) GetTheoryQuestionByID(echoCtx echo.Context) error {
 
 	_, _ = restricted(echoCtx)
 
-	questionID := echoCtx.Param("id")	
+	questionID := echoCtx.Param("id")
 	requestCtx := echoCtx.Request().Context()
 
 	question, err := qsHandler.QuestionUC.GetTheoryQuestion(requestCtx, questionID)
-	
+
 	if err != nil {
 		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
@@ -207,8 +217,8 @@ func (qsHandler *QuestionHandler) GetTheoryQuestionByID(echoCtx echo.Context) (e
 
 }
 
-func (qsHandler *QuestionHandler) UpdateQuestionByID(echoCtx echo.Context) (error){
-	
+func (qsHandler *QuestionHandler) UpdateQuestionByID(echoCtx echo.Context) error {
+
 	_, _ = restricted(echoCtx)
 
 	docID := echoCtx.Param("id")
@@ -219,7 +229,7 @@ func (qsHandler *QuestionHandler) UpdateQuestionByID(echoCtx echo.Context) (erro
 	requestCtx := echoCtx.Request().Context()
 
 	questionResult, err := qsHandler.QuestionUC.UpdateQuestion(requestCtx, updatedQuestion, docID)
-	
+
 	if err != nil {
 		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
@@ -227,8 +237,8 @@ func (qsHandler *QuestionHandler) UpdateQuestionByID(echoCtx echo.Context) (erro
 	return echoCtx.JSON(http.StatusOK, questionResult)
 }
 
-func (qsHandler *QuestionHandler) UpdateTheoryQuestionByID(echoCtx echo.Context) (error){
-	
+func (qsHandler *QuestionHandler) UpdateTheoryQuestionByID(echoCtx echo.Context) error {
+
 	_, _ = restricted(echoCtx)
 
 	docID := echoCtx.Param("id")
@@ -239,7 +249,7 @@ func (qsHandler *QuestionHandler) UpdateTheoryQuestionByID(echoCtx echo.Context)
 	requestCtx := echoCtx.Request().Context()
 
 	questionResult, err := qsHandler.QuestionUC.UpdateTheoryQuestion(requestCtx, updatedQuestion, docID)
-	
+
 	if err != nil {
 		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
@@ -247,7 +257,7 @@ func (qsHandler *QuestionHandler) UpdateTheoryQuestionByID(echoCtx echo.Context)
 	return echoCtx.JSON(http.StatusOK, questionResult)
 }
 
-func (qsHandler *QuestionHandler) DeleteQuestionByID(echoCtx echo.Context) (error) {
+func (qsHandler *QuestionHandler) DeleteQuestionByID(echoCtx echo.Context) error {
 
 	_, _ = restricted(echoCtx)
 
@@ -256,16 +266,16 @@ func (qsHandler *QuestionHandler) DeleteQuestionByID(echoCtx echo.Context) (erro
 
 	requestCtx := echoCtx.Request().Context()
 	questionResult, err := qsHandler.QuestionUC.DeleteQuestion(requestCtx, metaID, questionID)
-	
+
 	if err != nil {
 		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
 
 	return echoCtx.JSON(http.StatusOK, questionResult)
-	
+
 }
 
-func (qsHandler *QuestionHandler) AddQuestion(echoCtx echo.Context) (error) {
+func (qsHandler *QuestionHandler) AddQuestion(echoCtx echo.Context) error {
 
 	_, _ = restricted(echoCtx)
 	metaID := echoCtx.Param("metaid")
@@ -278,8 +288,8 @@ func (qsHandler *QuestionHandler) AddQuestion(echoCtx echo.Context) (error) {
 	}
 
 	requestCtx := echoCtx.Request().Context()
-	result, err  := qsHandler.QuestionUC.AddSingleQuestion(requestCtx, &singleQuestion, metaID)
-	
+	result, err := qsHandler.QuestionUC.AddSingleQuestion(requestCtx, &singleQuestion, metaID)
+
 	if err != nil {
 		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
@@ -288,7 +298,7 @@ func (qsHandler *QuestionHandler) AddQuestion(echoCtx echo.Context) (error) {
 
 }
 
-func (qsHandler *QuestionHandler) AddTheoryQuestion(echoCtx echo.Context) (error) {
+func (qsHandler *QuestionHandler) AddTheoryQuestion(echoCtx echo.Context) error {
 
 	_, _ = restricted(echoCtx)
 	metaID := echoCtx.Param("metaid")
@@ -301,8 +311,8 @@ func (qsHandler *QuestionHandler) AddTheoryQuestion(echoCtx echo.Context) (error
 	}
 
 	requestCtx := echoCtx.Request().Context()
-	result, err  := qsHandler.QuestionUC.AddSingleTheoryQuestion(requestCtx, &singleQuestion, metaID)
-	
+	result, err := qsHandler.QuestionUC.AddSingleTheoryQuestion(requestCtx, &singleQuestion, metaID)
+
 	if err != nil {
 		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
@@ -311,15 +321,15 @@ func (qsHandler *QuestionHandler) AddTheoryQuestion(echoCtx echo.Context) (error
 
 }
 
-func (qsHandler *QuestionHandler) GetS3Credentials(echoCtx echo.Context) (error){
+func (qsHandler *QuestionHandler) GetS3Credentials(echoCtx echo.Context) error {
 
 	type S3Cred struct {
-		Username       	string 				`json:"username" bson:"username"`
-		Accesskey 		string 				`json:"accesskey" bson:"accesskey"`
-		Secretkey 		string 				`json:"secretkey" bson:"secretkey"`
-		Region			string				`json:"region" bson:"region"`
+		Username  string `json:"username" bson:"username"`
+		Accesskey string `json:"accesskey" bson:"accesskey"`
+		Secretkey string `json:"secretkey" bson:"secretkey"`
+		Region    string `json:"region" bson:"region"`
 	}
-	
+
 	s3cred := new(S3Cred)
 	s3cred.Username = os.Getenv("ENV_S3_USERNAME")
 	s3cred.Accesskey = os.Getenv("ENV_S3_ACCESS_KEY_ID")
@@ -331,15 +341,74 @@ func (qsHandler *QuestionHandler) GetS3Credentials(echoCtx echo.Context) (error)
 	return echoCtx.JSON(http.StatusOK, s3cred)
 }
 
-func (qsHandler *QuestionHandler) GetQuestionByID_NoAuth(echoCtx echo.Context) (error){
+func (qsHandler *QuestionHandler) UploadImageToS3(echoCtx echo.Context) error {
+
+	file, fileHeader, err := echoCtx.Request().FormFile("file")
+	subject := echoCtx.Request().FormValue("subject")
+	if err != nil {
+		return err
+	}
+
+	// Get the fileName from Path
+	// imageFile := "/home/muhammad/Pictures/Image-1.jpeg"
+	imageFile := fileHeader.Filename
+
+	// // Open the file from the file path
+	// upFile, err := os.Open("/home/muhammad/Pictures/Image-1.jpeg")
+	// if err != nil {
+	// 	return fmt.Errorf("could not open local filepath : %v", err)
+	// }
+	// defer upFile.Close()
+
+	// // Get the file info
+	// upFileInfo, _ := upFile.Stat()
+	// var fileSize int64 = upFileInfo.Size()
+	// fileBuffer := make([]byte, fileSize)
+	// upFile.Read(fileBuffer)
+
+	// filename := header.Filename
+
+	// defer file.Close()
+
+	var sb strings.Builder
+	sb.WriteString(subject + "/")
+	sb.WriteString(imageFile)
+
+	fmt.Println("String Builder: " + sb.String())
+
+	uploader := manager.NewUploader(qsHandler.awsS3Client)
+	uploadResult, err := uploader.Upload(context.TODO(), &s3.PutObjectInput{
+		Bucket: aws.String("exam105"),
+		Key:    aws.String(sb.String()),
+		Body:   file,
+	})
+
+	if err != nil {
+		fmt.Printf("Error: %v  \n", err)
+		return err
+	}
+
+	uploadLocation := uploadResult.Location
+	fmt.Println("Location: " + uploadResult.Location)
+	fmt.Printf("Image has been uploaded ->>> %v \t \n", imageFile)
+
+	if err != nil {
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+	}
+
+	return echoCtx.JSON(http.StatusCreated, uploadLocation)
+
+}
+
+func (qsHandler *QuestionHandler) GetQuestionByID_NoAuth(echoCtx echo.Context) error {
 
 	// _, _ = restricted(echoCtx)
 
-	questionID := echoCtx.Param("id")	
+	questionID := echoCtx.Param("id")
 	requestCtx := echoCtx.Request().Context()
 
 	question, err := qsHandler.QuestionUC.GetQuestionNoAuth(requestCtx, questionID)
-	
+
 	if err != nil {
 		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
 	}
@@ -348,11 +417,11 @@ func (qsHandler *QuestionHandler) GetQuestionByID_NoAuth(echoCtx echo.Context) (
 
 }
 
-func (qsHandler *QuestionHandler) GetListOfMCQsByMetadataID_NoAuth(echoCtx echo.Context) (error){
+func (qsHandler *QuestionHandler) GetListOfMCQsByMetadataID_NoAuth(echoCtx echo.Context) error {
 
 	// _, _ = restricted(echoCtx)
 
-	metadataID := echoCtx.Param("metaid")	
+	metadataID := echoCtx.Param("metaid")
 	requestCtx := echoCtx.Request().Context()
 
 	allQuestion, err := qsHandler.QuestionUC.GetMCQsByMetadataID(requestCtx, metadataID)
@@ -365,11 +434,11 @@ func (qsHandler *QuestionHandler) GetListOfMCQsByMetadataID_NoAuth(echoCtx echo.
 
 }
 
-func (qsHandler *QuestionHandler) GetMetadataById_NoAuth(echoCtx echo.Context) (error){
+func (qsHandler *QuestionHandler) GetMetadataById_NoAuth(echoCtx echo.Context) error {
 
 	// _, _ = restricted(echoCtx)
 
-	metadataID := echoCtx.Param("metaid")	
+	metadataID := echoCtx.Param("metaid")
 	requestCtx := echoCtx.Request().Context()
 
 	allQuestion, err := qsHandler.QuestionUC.GetMetadataInfoByMetaIDNoAuth(requestCtx, metadataID)
@@ -382,12 +451,12 @@ func (qsHandler *QuestionHandler) GetMetadataById_NoAuth(echoCtx echo.Context) (
 
 }
 
-func (qsHandler *QuestionHandler) GetEnvVariables(echoCtx echo.Context) (error){
+func (qsHandler *QuestionHandler) GetEnvVariables(echoCtx echo.Context) error {
 
 	type Env struct {
-		GoogleAnalyticsMeasurementID       	string 				`json:"googleanalytics" bson:"googleanalytics"`
+		GoogleAnalyticsMeasurementID string `json:"googleanalytics" bson:"googleanalytics"`
 	}
-	
+
 	envVariables := new(Env)
 	envVariables.GoogleAnalyticsMeasurementID = os.Getenv("ENV_GOOGLE_ANALYTICS_MEASUREMENT_ID")
 

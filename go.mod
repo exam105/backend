@@ -3,6 +3,12 @@ module github.com/exam105-UPD/backend
 go 1.16
 
 require (
+	github.com/aws/aws-sdk-go-v2 v1.15.0 // indirect
+	github.com/aws/aws-sdk-go-v2/config v1.15.0 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.10.0 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.11.0 // indirect
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.26.0 // indirect
+	github.com/awslabs/smithy-go v0.3.0 // indirect
 	github.com/bxcodec/faker v2.0.1+incompatible // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-playground/universal-translator v0.17.0 // indirect

@@ -22,3 +22,4 @@ backend
 
 # SQL file
 *.sql
+.vscode/launch.json
