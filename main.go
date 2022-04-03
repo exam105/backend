@@ -144,6 +144,8 @@ func initializeMongoDatabase(ctx context.Context) *mongo.Client {
 	log.Println("Environment: " + os.Getenv("ENV_EXAM105"))
 	log.Println("Env User: " + os.Getenv("ENV_MONGO_USER"))
 	log.Println("S3 User: " + os.Getenv("ENV_S3_USERNAME"))
+	log.Println("S3 Access KEY: " + os.Getenv("ENV_S3_ACCESS_KEY_ID"))
+	log.Println("S3 Secret KEY: " + os.Getenv("ENV_S3_SECRET_ACCESS_KEY"))
 	log.Println("Replica Set Name: " + os.Getenv("ENV_REPLICA_SET_NAME"))
 	log.Println("Replica Public IP: " + os.Getenv("ENV_REPLICA_PUBLIC_HOST_1"))
 	log.Println("Replica Prive IP - 1: " + os.Getenv("ENV_REPLICA_HOST_1"))
