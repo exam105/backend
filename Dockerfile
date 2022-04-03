@@ -15,7 +15,7 @@ RUN mkdir -p $APP_HOME
 WORKDIR $APP_HOME
 
 # S3 fix 
-RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 
 # Copy golang dependency manifests
 COPY go.mod .
@@ -32,6 +32,7 @@ RUN go get && CGO_ENABLED=0 GOOS=linux go build -o exam105 .
 
 FROM scratch AS app
 WORKDIR /go/src/github.com/exam105-UPD/backend
+COPY  /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builderStep /go/src/github.com/exam105-UPD/backend .
 EXPOSE 9090
 ENTRYPOINT [ "./exam105" ]
