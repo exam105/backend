@@ -72,7 +72,7 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase, thisAwsC
 	grp2.GET("/questions/:metaid", handler.GetListOfMCQsByMetadataID_NoAuth)
 	grp2.GET("/metadata/:metaid", handler.GetMetadataById_NoAuth)
 	grp2.GET("/env", handler.GetEnvVariables)
-	grp2.POST("/question/uploadimage", handler.UploadImageToS3)
+	grp2.PUT("/question/uploadimage", handler.UploadImageToS3)
 	grp2.GET("/homepage/links", handler.FetchHomePageLinks)
 }
 
@@ -377,7 +377,6 @@ func (qsHandler *QuestionHandler) UploadImageToS3(echoCtx echo.Context) error {
 	sb.WriteString(imageFile)
 
 	fmt.Println("String Builder: " + sb.String())
-
 	uploader := manager.NewUploader(qsHandler.awsS3Client)
 	uploadResult, err := uploader.Upload(context.TODO(), &s3.PutObjectInput{
 		Bucket: aws.String("exam105"),

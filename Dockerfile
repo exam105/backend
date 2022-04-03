@@ -14,6 +14,9 @@ ENV APP_HOME /go/src/github.com/exam105-UPD/backend
 RUN mkdir -p $APP_HOME
 WORKDIR $APP_HOME
 
+# S3 fix 
+RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
+
 # Copy golang dependency manifests
 COPY go.mod .
 COPY go.sum .
