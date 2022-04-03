@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -414,24 +415,17 @@ func (qsHandler *QuestionHandler) FetchHomePageLinks(echoCtx echo.Context) error
 	}
 	defer result.Body.Close()
 
-	body1, err := ioutil.ReadAll(result.Body)
+	linksFromS3, err := ioutil.ReadAll(result.Body)
 	if err != nil {
 		fmt.Println(err)
 	}
-	bodyString1 := fmt.Sprintf("%s", body1)
 
-	// uploader := manager.NewUploader(qsHandler.awsS3Client)
-	// uploadResult, err := uploader.Upload(context.TODO(), &s3.PutObjectInput{
-	// 	Bucket: aws.String("exam105"),
-	// 	Key:    aws.String(sb.String()),
-	// 	Body:   file,
-	// })
+	var pageLinks domain.HomepageLinks
+	if err = json.Unmarshal(linksFromS3, &pageLinks); err != nil {
+		panic(err)
+	}
 
-	// if err != nil {
-	// 	return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
-	// }
-
-	return echoCtx.JSON(http.StatusOK, bodyString1)
+	return echoCtx.JSON(http.StatusOK, pageLinks)
 
 }
 
