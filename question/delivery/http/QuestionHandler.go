@@ -74,6 +74,7 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase, thisAwsC
 	grp2.GET("/metadata/:metaid", handler.GetMetadataById_NoAuth)
 	grp2.GET("/env", handler.GetEnvVariables)
 	grp2.PUT("/question/uploadimage", handler.UploadImageToS3)
+	grp2.DELETE("/question/deleteimage/:subject/:imagename", handler.DeleteImageFromS3)
 	grp2.GET("/homepage/links", handler.FetchHomePageLinks)
 }
 
@@ -356,23 +357,6 @@ func (qsHandler *QuestionHandler) UploadImageToS3(echoCtx echo.Context) error {
 	// imageFile := "/home/muhammad/Pictures/Image-1.jpeg"
 	imageFile := fileHeader.Filename
 
-	// // Open the file from the file path
-	// upFile, err := os.Open("/home/muhammad/Pictures/Image-1.jpeg")
-	// if err != nil {
-	// 	return fmt.Errorf("could not open local filepath : %v", err)
-	// }
-	// defer upFile.Close()
-
-	// // Get the file info
-	// upFileInfo, _ := upFile.Stat()
-	// var fileSize int64 = upFileInfo.Size()
-	// fileBuffer := make([]byte, fileSize)
-	// upFile.Read(fileBuffer)
-
-	// filename := header.Filename
-
-	// defer file.Close()
-
 	var sb strings.Builder
 	sb.WriteString(subject + "/")
 	sb.WriteString(imageFile)
@@ -399,6 +383,43 @@ func (qsHandler *QuestionHandler) UploadImageToS3(echoCtx echo.Context) error {
 	}
 
 	return echoCtx.JSON(http.StatusCreated, uploadLocation)
+
+}
+
+func (qsHandler *QuestionHandler) DeleteImageFromS3(echoCtx echo.Context) error {
+
+	// file, fileHeader, err := echoCtx.Request().FormFile("file")
+	// subject := echoCtx.Request().FormValue("subject")
+	// if err != nil {
+	// 	return err
+	// }
+
+	subject := echoCtx.Param("subject")
+	imageName := echoCtx.Param("imagename")
+
+	var sb strings.Builder
+	sb.WriteString(subject + "/")
+	sb.WriteString(imageName)
+
+	awsClient := qsHandler.awsS3Client
+
+	input := &s3.DeleteObjectInput{
+		Bucket: aws.String("exam105"),
+		Key:    aws.String(sb.String()),
+	}
+
+	_, err := awsClient.DeleteObject(context.TODO(), input)
+
+	if err != nil {
+		fmt.Println("Got an error deleting item:")
+		fmt.Println(err)
+		return echoCtx.JSON(getStatusCode(err), ResponseError{Message: err.Error()})
+
+	}
+
+	fmt.Println("Object Deleted " + sb.String() + " from exam105 bucket")
+
+	return echoCtx.JSON(http.StatusOK, "Object Deleted "+sb.String()+" from exam105 bucket")
 
 }
 
