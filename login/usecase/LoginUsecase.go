@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/exam105-UPD/backend/domain"
@@ -22,7 +21,7 @@ func NewLoginUsecase(logRepo domain.LoginRepository, timeout time.Duration) doma
 	}
 }
 
-func (loginUC *loginUsecase) Authenticate(ctx context.Context, username string, useremail string) (err error){
+func (loginUC *loginUsecase) Authenticate(ctx context.Context, username string, useremail string) (err error) {
 
 	ctx, cancel := context.WithTimeout(ctx, loginUC.contextTimeout)
 	defer cancel()
@@ -38,7 +37,7 @@ func (loginUC *loginUsecase) Save(ctx context.Context, DEO_Model *domain.DataEnt
 
 	//userLoginModel := new(domain.UserLoginModel)
 	DEO_Model.ID = primitive.NewObjectID()
-	fmt.Println(DEO_Model)
+	//fmt.Println(DEO_Model)
 	loginUC.loginRepo.Save(ctx, DEO_Model)
 	return
 }

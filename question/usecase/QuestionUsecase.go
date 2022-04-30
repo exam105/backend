@@ -114,15 +114,15 @@ func (qsUC *questionUsecase) SaveMCQ(requestCtx context.Context, allMcqs *domain
 			//adding hexID to metadata
 			questionHexIds = append(questionHexIds, _id.Hex())
 
-			fmt.Printf("Single Qs ->>> %v \t \n", singleQuestion)
+			//fmt.Printf("Single Qs ->>> %v \t \n", singleQuestion)
 		}
 	}
 
 	metadataBson.QuestionHexIds = questionHexIds
 
-	fmt.Println("*******************************________________**********************************")
-	fmt.Printf("\n %#v", questionSet)
-	fmt.Printf("\n ID---- %#v", questionHexIds)
+	//fmt.Println("*******************************________________**********************************")
+	//fmt.Printf("\n %#v", questionSet)
+	//fmt.Printf("\n ID---- %#v", questionHexIds)
 
 	qsUC.questionRepo.SaveQuestionMetadata(ctx, metadataBson)
 	qsUC.questionRepo.SaveAllQuestions(ctx, questionSet)
@@ -142,7 +142,7 @@ func (qsUC *questionUsecase) SaveTheoryQuestion(requestCtx context.Context, allM
 
 		singleQuestion := new(domain.TheoryQuestion)
 
-		fmt.Printf("\n *************************** \n")
+		//fmt.Printf("\n *************************** \n")
 		if key == 0 {
 
 			metadataBson.System = currentQuesPointer.System
@@ -200,15 +200,15 @@ func (qsUC *questionUsecase) SaveTheoryQuestion(requestCtx context.Context, allM
 			//adding hexID to metadata
 			questionHexIds = append(questionHexIds, _id.Hex())
 
-			fmt.Printf("Single Qs ->>> %v \t \n", singleQuestion)
+			//fmt.Printf("Single Qs ->>> %v \t \n", singleQuestion)
 		}
 	}
 
 	metadataBson.QuestionHexIds = questionHexIds
 
-	fmt.Println("*******************************________________**********************************")
-	fmt.Printf("\n %#v", questionSet)
-	fmt.Printf("\n ID---- %#v", questionHexIds)
+	//fmt.Println("*******************************________________**********************************")
+	//fmt.Printf("\n %#v", questionSet)
+	//fmt.Printf("\n ID---- %#v", questionHexIds)
 
 	qsUC.questionRepo.SaveQuestionMetadata(ctx, metadataBson)
 	qsUC.questionRepo.SaveAllQuestions(ctx, questionSet)
@@ -275,7 +275,7 @@ func (qsUC *questionUsecase) AddSingleQuestion(requestCtx context.Context, singl
 	singleQuestion.Topics = topicsArray
 	singleQuestion.Images = imagesArray
 
-	fmt.Printf("Single Qs ->>> %v \t \n", singleQuestion)
+	//fmt.Printf("Single Qs ->>> %v \t \n", singleQuestion)
 	return qsUC.questionRepo.AddSingleQuestion(ctx, singleQuestion, metadataID)
 	//return &singleQuestion, nil
 

@@ -1,12 +1,13 @@
 package repository
 
 import (
-	"github.com/exam105-UPD/backend/logging"
 	"context"
 	"errors"
 	"fmt"
 	"log"
 	"reflect"
+
+	"github.com/exam105-UPD/backend/logging"
 
 	"github.com/exam105-UPD/backend/domain"
 	"go.mongodb.org/mongo-driver/bson"
@@ -30,19 +31,19 @@ func (db *loginRepo) Authenticate(ctx context.Context, username string, useremai
 	count, err := operatorCollection.CountDocuments(ctx,
 		bson.M{
 			"username": username,
-			"email": useremail,
+			"email":    useremail,
 		})
 
 	if err != nil {
-		log.Println( logging.MSG_LoginFailed, err.Error())
+		log.Println(logging.MSG_LoginFailed, err.Error())
 		return err
 	}
-	
+
 	if count >= 1 {
-		log.Println( logging.MSG_DocumentFound)
+		log.Println(logging.MSG_DocumentFound)
 
 	} else {
-		log.Println( logging.MSG_DocumentNotFound)
+		log.Println(logging.MSG_DocumentNotFound)
 		return errors.New("Document doesn't exists")
 	}
 
@@ -53,12 +54,12 @@ func (db *loginRepo) Save(ctx context.Context, DEO_Model *domain.DataEntryOperat
 
 	database := db.Conn.Database("exam105")
 	dataEntryOperatorCollection := database.Collection("operator_account")
-	insertResult, err := dataEntryOperatorCollection.InsertOne(ctx, DEO_Model)
+	_, err := dataEntryOperatorCollection.InsertOne(ctx, DEO_Model)
 	if err != nil {
-		log.Println( logging.MSG_InsertUnsuccessful, err.Error())
+		log.Println(logging.MSG_InsertUnsuccessful, err.Error())
 	}
 
-	fmt.Println("Inserted a single metadata document: ", insertResult)
+	fmt.Println("Inserted a single metadata document")
 
 	return
 }
@@ -70,19 +71,19 @@ func (db *loginRepo) GetAllOperators(ctx context.Context) ([]domain.DataEntryOpe
 
 	cursor, err := dataEntryOperatorCollection.Find(ctx, bson.D{})
 	if err != nil {
-		log.Println( logging.MSG_DocumentNotFound, err.Error())
+		log.Println(logging.MSG_DocumentNotFound, err.Error())
 	}
 	defer cursor.Close(ctx)
 
 	var operator []domain.DataEntryOperatorModel
 	if err = cursor.All(ctx, &operator); err != nil {
-		log.Println( logging.MSG_MappingFailure, err.Error())
+		log.Println(logging.MSG_MappingFailure, err.Error())
 	}
 
 	if len(operator) == 0 {
 		return nil, errors.New("Data Entry Table is empty ")
 	}
-	fmt.Println(operator)
+	// fmt.Println(operator)
 
 	return operator, nil
 }

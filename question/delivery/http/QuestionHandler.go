@@ -361,7 +361,7 @@ func (qsHandler *QuestionHandler) UploadImageToS3(echoCtx echo.Context) error {
 	sb.WriteString(subject + "/")
 	sb.WriteString(imageFile)
 
-	fmt.Println("String Builder: " + sb.String())
+	//fmt.Println("String Builder: " + sb.String())
 	uploader := manager.NewUploader(qsHandler.awsS3Client)
 	uploadResult, err := uploader.Upload(context.TODO(), &s3.PutObjectInput{
 		Bucket: aws.String("exam105"),
