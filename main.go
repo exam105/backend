@@ -1,4 +1,4 @@
-package main
+/* package main
 
 import (
 	"context"
@@ -197,3 +197,4 @@ func configS3() *s3.Client {
 	return s3.NewFromConfig(cfg)
 
 }
+ */
