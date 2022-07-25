@@ -34,4 +34,7 @@ type Metadata struct {
 	IsTheory       bool               `json:"is_theory,omitempty" bson:"is_theory"`
 	Reference      string             `json:"reference,omitempty" bson:"reference"`
 	Notes          string             `json:"notes,omitempty" bson:"notes"`
+	//Question PDF
+	//Answer PDF
+	//Audio Array
 }

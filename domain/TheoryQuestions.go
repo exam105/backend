@@ -9,4 +9,6 @@ type TheoryQuestion struct {
 	Answer   string             `json:"answer,omitempty" bson:"answer"`
 	Topics   []QuestionTopics   `json:"topics,omitempty" bson:"topics"` // Referencing from McqQusetion
 	Images   []QuestionImages   `json:"images,omitempty" bson:"images"` // Referencing from McqQusetion
+	//PDF
+	//Audio
 }

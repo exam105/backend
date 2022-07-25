@@ -8,6 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.10.0
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.11.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.26.0
+	github.com/bxcodec/go-clean-arch v2.0.1+incompatible // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-sql-driver/mysql v1.5.0
