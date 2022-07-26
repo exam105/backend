@@ -3,6 +3,7 @@ module github.com/exam105-UPD/backend
 go 1.16
 
 require (
+	github.com/aws/aws-sdk-go v1.34.28 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.15.0
 	github.com/aws/aws-sdk-go-v2/config v1.15.0
 	github.com/aws/aws-sdk-go-v2/credentials v1.10.0
