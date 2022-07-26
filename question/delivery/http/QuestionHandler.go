@@ -62,7 +62,7 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase, thisAwsC
 	grp.DELETE("/question/theory/:id/meta/:metaid", handler.DeleteQuestionByID)
 
 	//S3 Credentials
-	grp.GET("/question/s3credentials", handler.GetS3Credentials)
+	// grp.GET("/question/s3credentials", handler.GetS3Credentials)
 
 	//JWT Free URLs
 	grp2 := e.Group("exam")
@@ -324,25 +324,25 @@ func (qsHandler *QuestionHandler) AddTheoryQuestion(echoCtx echo.Context) error 
 
 }
 
-func (qsHandler *QuestionHandler) GetS3Credentials(echoCtx echo.Context) error {
+// func (qsHandler *QuestionHandler) GetS3Credentials(echoCtx echo.Context) error {
 
-	type S3Cred struct {
-		Username  string `json:"username" bson:"username"`
-		Accesskey string `json:"accesskey" bson:"accesskey"`
-		Secretkey string `json:"secretkey" bson:"secretkey"`
-		Region    string `json:"region" bson:"region"`
-	}
+// 	type S3Cred struct {
+// 		Username  string `json:"username" bson:"username"`
+// 		Accesskey string `json:"accesskey" bson:"accesskey"`
+// 		Secretkey string `json:"secretkey" bson:"secretkey"`
+// 		Region    string `json:"region" bson:"region"`
+// 	}
 
-	s3cred := new(S3Cred)
-	s3cred.Username = os.Getenv("ENV_S3_USERNAME")
-	s3cred.Accesskey = os.Getenv("ENV_S3_ACCESS_KEY_ID")
-	s3cred.Secretkey = os.Getenv("ENV_S3_SECRET_ACCESS_KEY")
-	s3cred.Region = os.Getenv("ENV_S3_REGION")
+// 	s3cred := new(S3Cred)
+// 	s3cred.Username = os.Getenv("ENV_S3_USERNAME")
+// 	s3cred.Accesskey = os.Getenv("ENV_S3_ACCESS_KEY_ID")
+// 	s3cred.Secretkey = os.Getenv("ENV_S3_SECRET_ACCESS_KEY")
+// 	s3cred.Region = os.Getenv("ENV_S3_REGION")
 
-	//log.Info("S3 Region: " + os.Getenv("ENV_S3_REGION"))
+// 	//log.Info("S3 Region: " + os.Getenv("ENV_S3_REGION"))
 
-	return echoCtx.JSON(http.StatusOK, s3cred)
-}
+// 	return echoCtx.JSON(http.StatusOK, s3cred)
+// }
 
 func (qsHandler *QuestionHandler) UploadImageToS3(echoCtx echo.Context) error {
 
