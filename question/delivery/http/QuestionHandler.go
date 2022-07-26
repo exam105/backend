@@ -16,7 +16,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/exam105-UPD/backend/domain"
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 	"github.com/sirupsen/logrus"
 )
 
@@ -41,7 +40,7 @@ func NewQuestionHandler(e *echo.Echo, qsUseCase domain.QuestionUsecase, thisAwsC
 
 	// Restricted group
 	grp := e.Group("dashboard/de")
-	grp.Use(middleware.JWT([]byte(os.Getenv("ENV_ACCESS_TOKEN_SECRET")))) // The string "secret" should be accessed from data entry. For details, https://echo.labstack.com/cookbook/jwt
+	// grp.Use(middleware.JWT([]byte(os.Getenv("ENV_ACCESS_TOKEN_SECRET")))) // The string "secret" should be accessed from data entry. For details, https://echo.labstack.com/cookbook/jwt
 
 	grp.POST("/questions", handler.SaveMCQ)
 	grp.GET("/metadata", handler.GetMetadataByUser)
@@ -85,7 +84,7 @@ func (qsHandler *QuestionHandler) Testing(echoCtx echo.Context) (err error) {
 
 func (qsHandler *QuestionHandler) SaveMCQ(echoCtx echo.Context) (err error) {
 
-	username, useremail := restricted(echoCtx)
+	username, useremail := "jo", "jo@email.com"
 	var allQuestion domain.MCQModel
 	err = echoCtx.Bind(&allQuestion)
 	if err != nil {
@@ -103,7 +102,7 @@ func (qsHandler *QuestionHandler) SaveMCQ(echoCtx echo.Context) (err error) {
 
 func (qsHandler *QuestionHandler) SaveTheoryQs(echoCtx echo.Context) (err error) {
 
-	username, useremail := restricted(echoCtx)
+	username, useremail := "jo", "jo@email.com"
 	var allQuestion domain.TheoryModel
 	err = echoCtx.Bind(&allQuestion)
 	if err != nil {
@@ -121,7 +120,7 @@ func (qsHandler *QuestionHandler) SaveTheoryQs(echoCtx echo.Context) (err error)
 
 func (qsHandler *QuestionHandler) GetMetadataByUser(echoCtx echo.Context) error {
 
-	username, useremail := restricted(echoCtx)
+	username, useremail := "jo", "jo@email.com"
 	requestCtx := echoCtx.Request().Context()
 
 	metadataInfo, err := qsHandler.QuestionUC.GetMetadataById(requestCtx, username, useremail)

@@ -20,6 +20,9 @@ type MetadataBson struct {
 	IsTheory       bool               `json:"is_theory,omitempty" bson:"is_theory"`
 	Reference      string             `json:"reference,omitempty" bson:"reference"`
 	Notes          string             `json:"notes,omitempty" bson:"notes"`
+	QuesPdf        string             `json:"ques_pdf,omitempty" bson:"ques_pdf"`
+	AnsPdf         string             `json:"ans_pdf,omitempty" bson:"ans_pdf"`
+	Audio          []string           `json:"audio,omitempty" bson:"audio"`
 }
 
 type Metadata struct {
@@ -34,7 +37,7 @@ type Metadata struct {
 	IsTheory       bool               `json:"is_theory,omitempty" bson:"is_theory"`
 	Reference      string             `json:"reference,omitempty" bson:"reference"`
 	Notes          string             `json:"notes,omitempty" bson:"notes"`
-	//Question PDF
-	//Answer PDF
-	//Audio Array
+	QuesPdf        string             `json:"ques_pdf,omitempty" bson:"ques_pdf"`
+	AnsPdf         string             `json:"ans_pdf,omitempty" bson:"ans_pdf"`
+	Audio          []string           `json:"audio,omitempty" bson:"audio"`
 }

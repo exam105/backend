@@ -9,20 +9,23 @@ import (
 )
 
 type MCQModel []struct {
-	Subject   	string    `json:"subject,omitempty" bson:"subject,omitempty"`
-	System    	string    `json:"system,omitempty" bson:"system,omitempty"`
-	Board     	string    `json:"board,omitempty" bson:"board,omitempty"`
-	Series    	string    `json:"series,omitempty" bson:"series,omitempty"`
-	Paper     	string    `json:"paper,omitempty" bson:"paper,omitempty"`
-	Date      	time.Time `json:"date,omitempty" bson:"date"`
-	Question  	string    `json:"question,omitempty" bson:"question,omitempty"`
-	Marks     	string    `json:"marks,omitempty" bson:"marks,omitempty"`
-	Options   	option    `json:"options,omitempty" bson:"options,omitempty"`
-	Topics    	topic     `json:"topics,omitempty" bson:"topics,omitempty"`
-	Images    	image     `json:"images,omitempty" bson:"images,omitempty"`
-	IsTheory  	bool      `json:"is_theory,omitempty" bson:"is_theory"`
-	Reference 	string    `json:"reference,omitempty" bson:"reference"`
-	Notes		string    `json:"notes,omitempty" bson:"notes"`
+	Subject   string    `json:"subject,omitempty" bson:"subject,omitempty"`
+	System    string    `json:"system,omitempty" bson:"system,omitempty"`
+	Board     string    `json:"board,omitempty" bson:"board,omitempty"`
+	Series    string    `json:"series,omitempty" bson:"series,omitempty"`
+	Paper     string    `json:"paper,omitempty" bson:"paper,omitempty"`
+	Date      time.Time `json:"date,omitempty" bson:"date"`
+	Question  string    `json:"question,omitempty" bson:"question,omitempty"`
+	Marks     string    `json:"marks,omitempty" bson:"marks,omitempty"`
+	Options   option    `json:"options,omitempty" bson:"options,omitempty"`
+	Topics    topic     `json:"topics,omitempty" bson:"topics,omitempty"`
+	Images    image     `json:"images,omitempty" bson:"images,omitempty"`
+	IsTheory  bool      `json:"is_theory,omitempty" bson:"is_theory"`
+	Reference string    `json:"reference,omitempty" bson:"reference"`
+	Notes     string    `json:"notes,omitempty" bson:"notes"`
+	QuesPdf   string    `json:"ques_pdf,omitempty" bson:"ques_pdf"`
+	AnsPdf    string    `json:"ans_pdf,omitempty" bson:"ans_pdf"`
+	// Audio     []string  `json:"audio,omitempty" bson:"audio"`
 }
 
 type TheoryModel []struct {
@@ -39,7 +42,10 @@ type TheoryModel []struct {
 	Images    image     `json:"images,omitempty" bson:"images,omitempty"`
 	IsTheory  bool      `json:"is_theory,omitempty" bson:"is_theory"`
 	Reference string    `json:"reference,omitempty" bson:"reference"`
-	Notes		string    `json:"notes,omitempty" bson:"notes"`
+	Notes     string    `json:"notes,omitempty" bson:"notes"`
+	QuesPdf   string    `json:"ques_pdf,omitempty" bson:"ques_pdf"`
+	AnsPdf    string    `json:"ans_pdf,omitempty" bson:"ans_pdf"`
+	Audio     []string  `json:"audio,omitempty" bson:"audio"`
 }
 
 type option []struct {
